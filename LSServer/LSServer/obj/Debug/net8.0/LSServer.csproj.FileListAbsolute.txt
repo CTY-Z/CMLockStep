@@ -1,0 +1,15 @@
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\LSServer.exe
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\LSServer.deps.json
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\LSServer.runtimeconfig.json
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\LSServer.dll
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\LSServer.pdb
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.GeneratedMSBuildEditorConfig.editorconfig
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.AssemblyInfoInputs.cache
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.AssemblyInfo.cs
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.csproj.CoreCompileInputs.cache
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.dll
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\refint\LSServer.dll
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.pdb
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.genruntimeconfig.cache
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\ref\LSServer.dll
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.sourcelink.json
