@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using UnityEngine;
 
@@ -20,8 +23,8 @@ public class NetworkClient : MonoBehaviour
     private TcpClient m_tcpClient;
     private NetworkStream m_stream;
     private Thread m_receiveThread;
-    private bool m_isConnented = false;
-    private Queue<string> m_que_receivedMsg = new();
+    private bool m_isConnected = false;
+    private Queue<string> que_receivedMsg = new();
     private object m_queueLock = new();
 
     private string m_currentInput = "";
@@ -29,6 +32,11 @@ public class NetworkClient : MonoBehaviour
     private void Start()
     {
         ConnentToServer();
+    }
+
+    private void Update()
+    {
+        
     }
 
     private void ConnentToServer()
@@ -39,7 +47,7 @@ public class NetworkClient : MonoBehaviour
             m_tcpClient = new();
             m_tcpClient.Connect(serverIP, serverPort);
             m_stream = m_tcpClient.GetStream();
-            m_isConnented = true;
+            m_isConnected = true;
 
             m_receiveThread = new(ReceivedMsgs);
             m_receiveThread.IsBackground = true;
@@ -57,6 +65,54 @@ public class NetworkClient : MonoBehaviour
 
     private void ReceivedMsgs()
     {
+        byte[] buffer = new byte[4096];
 
+        while (m_isConnected && m_stream != null)
+        {
+            try
+            {
+                int bytesRead = m_stream.Read(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
+                    break;
+
+                string bufferStr = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                string[] arr_msg = bufferStr.Split('\n');
+                foreach (string msg in arr_msg)
+                {
+                    lock (m_queueLock)
+                    {
+                        que_receivedMsg.Enqueue(msg);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"接收错误: {ex.Message}");
+                break;
+            }
+
+            Disconnect();
+        }
+
+        void Disconnect()
+        {
+            m_isConnected = false;
+            status = "已断开";
+
+            if (m_stream != null)
+            {
+                m_stream.Close();
+                m_stream = null;
+            }
+
+            if (m_tcpClient != null)
+            {
+                m_tcpClient.Close();
+                m_tcpClient = null;
+            }
+
+            Debug.Log("与服务器断开连接");
+        }
     }
 }
