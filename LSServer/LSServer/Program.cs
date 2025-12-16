@@ -65,7 +65,7 @@ namespace LS.Server
             foreach (var client in list_client)
             {
                 if (client.IsConnented)
-                    client.SendMessage(message);
+                    client.SendMsg(message);
             }
         }
 

@@ -26,7 +26,7 @@ namespace LSServer.Client
         {
             try
             {
-                SendMessage($"welcome! {m_clientID}");
+                SendMsg($"welcome|{m_clientID}");
                 Debug.Log($"分配ID给客户端:{m_clientID}");
 
                 byte[] buffer = new byte[1024];
@@ -55,7 +55,7 @@ namespace LSServer.Client
 
         void ProcessMessage(string msg)
         {
-            if (msg.StartsWith("Input|"))
+            if (msg.StartsWith("input|"))
             {
                 string[] arr_part = msg.Split('|');
                 if (arr_part.Length >= 3)
@@ -64,14 +64,15 @@ namespace LSServer.Client
                     Program.RecordInput(m_clientID, inputData);
                 }
             }
-            else if(msg == "Ping")
-                SendMessage("Pong");
+            else if(msg.StartsWith("ping"))
+                SendMsg("pong");
         }
 
-        public void SendMessage(string msg)
+        public void SendMsg(string msg)
         {
             try
             {
+                //Debug.Log($"给客户端发送了 - {msg}");
                 byte[] data = Encoding.UTF8.GetBytes(msg);
                 m_stream.Write(data, 0, data.Length);
             }

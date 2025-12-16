@@ -4,19 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class NetworkClient : MonoBehaviour
 {
-    [Header("Á¬½ÓÉèÖÃ")]
+    [Header("è¿æ¥è®¾ç½®")]
     public string serverIP = "127.0.0.1";
     public int serverPort = 8888;
 
-    [Header("µ÷ÊÔĞÅÏ¢")]
+    [Header("è°ƒè¯•ä¿¡æ¯")]
     public bool showLog = true;
-    public string status = "Î´Á¬½Ó";//±¾µØ»¯
+    public string status = "æœªè¿æ¥";
     public int clientID = -1;
     public int currentFrame = 0;
 
@@ -31,19 +33,51 @@ public class NetworkClient : MonoBehaviour
 
     private void Start()
     {
-        ConnentToServer();
+        ConnectToServer();
     }
 
     private void Update()
     {
-        
+        ProcessReceivedMsg();
+
+        CollectInput();
+
+        //if (m_isConnected && Time.frameCount % 2 == 0)
+        //{
+        //    SendInput();
+        //}
     }
 
-    private void ConnentToServer()
+    void OnGUI()
+    {
+        GUILayout.BeginArea(new Rect(10, 10, 300, 200));
+        GUILayout.Label($"çŠ¶æ€: {status}");
+        GUILayout.Label($"å®¢æˆ·ç«¯ID: {clientID}");
+        GUILayout.Label($"å½“å‰å¸§: {currentFrame}");
+        GUILayout.Label($"å½“å‰è¾“å…¥: {m_currentInput}");
+
+        if (GUILayout.Button("å‘é€æµ‹è¯•æ¶ˆæ¯"))
+            SendMsg("ping");
+
+        if (m_isConnected && GUILayout.Button("æ–­å¼€è¿æ¥"))
+            Disconnect();
+
+        if (!m_isConnected && GUILayout.Button("é‡æ–°è¿æ¥"))
+            ConnectToServer();
+
+        GUILayout.EndArea();
+    }
+
+    private void OnApplicationQuit()
+    {
+        Disconnect();
+    }
+
+    private void ConnectToServer()
     {
         try
         {
-            status = "Á¬½ÓÖĞ...";
+            status = "è¿æ¥ä¸­...";
             m_tcpClient = new();
             m_tcpClient.Connect(serverIP, serverPort);
             m_stream = m_tcpClient.GetStream();
@@ -53,13 +87,70 @@ public class NetworkClient : MonoBehaviour
             m_receiveThread.IsBackground = true;
             m_receiveThread.Start();
 
-            status = "ÒÑÁ¬½Ó";
-            Debug.Log("³É¹¦Á¬½Óµ½·şÎñÆ÷");
+            status = "å·²è¿æ¥";
+            Debug.Log("æˆåŠŸè¿æ¥åˆ°æœåŠ¡å™¨");
         }
         catch(Exception ex)
         {
-            status = "Á¬½ÓÊ§°Ü";
-            Debug.LogError($"Á¬½Ó·şÎñÆ÷Ê§°Ü£º{ex.Message}");
+            status = "è¿æ¥å¤±è´¥";
+            Debug.LogError($"è¿æ¥æœåŠ¡å™¨å¤±è´¥ï¼š{ex.Message}");
+        }
+    }
+
+    private void Disconnect()
+    {
+        m_isConnected = false;
+        status = "å·²æ–­å¼€";
+
+        if (m_stream != null)
+        {
+            m_stream.Close();
+            m_stream = null;
+        }
+
+        if (m_tcpClient != null)
+        {
+            m_tcpClient.Close();
+            m_tcpClient = null;
+        }
+
+        Debug.Log("ä¸æœåŠ¡å™¨æ–­å¼€è¿æ¥");
+    }
+
+
+
+    private void CollectInput()
+    {
+        // æ”¶é›†é”®ç›˜è¾“å…¥
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        bool fire = Input.GetKey(KeyCode.Space);
+
+        m_currentInput = $"H:{horizontal:F2},V:{vertical:F2},F:{fire}";
+    }
+    void SendInput()
+    {
+        if (!m_isConnected || string.IsNullOrEmpty(m_currentInput))
+            return;
+
+        string msg = $"input|{clientID}|{m_currentInput}";
+        SendMsg(msg);
+    }
+
+
+
+    void SendMsg(string msg)
+    {
+        try
+        {
+            //Debug.Log($"ç»™æœåŠ¡ç«¯å‘é€äº† - {msg}");
+            byte[] data = Encoding.UTF8.GetBytes(msg);
+            m_stream.Write(data, 0, data.Length);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"å‘é€å¤±è´¥: {e.Message}");
+            Disconnect();
         }
     }
 
@@ -72,7 +163,7 @@ public class NetworkClient : MonoBehaviour
             try
             {
                 int bytesRead = m_stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead > 0)
+                if (bytesRead == 0)
                     break;
 
                 string bufferStr = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -88,31 +179,73 @@ public class NetworkClient : MonoBehaviour
             }
             catch (Exception ex)
             {
-                Debug.LogError($"½ÓÊÕ´íÎó: {ex.Message}");
+                Debug.LogError($"æ¥æ”¶é”™è¯¯: {ex.Message}");
                 break;
             }
 
-            Disconnect();
         }
+        //Disconnect();
+    }
 
-        void Disconnect()
+    private void ProcessReceivedMsg()
+    {
+        lock(m_queueLock)
         {
-            m_isConnected = false;
-            status = "ÒÑ¶Ï¿ª";
-
-            if (m_stream != null)
+            while (que_receivedMsg.Count > 0)
             {
-                m_stream.Close();
-                m_stream = null;
+                string msg = que_receivedMsg.Dequeue();
+                HandleServerMsg(msg);
             }
+        }
+    }
 
-            if (m_tcpClient != null)
+    void HandleServerMsg(string msg)
+    {
+        string[] arr_part = msg.Split("|");
+
+        if (showLog && arr_part[0] != "frame")
+            Debug.Log($"æ”¶åˆ°{msg}");
+
+        if (arr_part[0] == "welcome")
+        {
+            if (int.TryParse(arr_part[1], out int ID))
             {
-                m_tcpClient.Close();
-                m_tcpClient = null;
+                clientID = ID;
+                status = $"å·²è¿æ¥ - id : {ID}";
+                Debug.Log($"æœåŠ¡å™¨åˆ†é…ID:{ID}");
             }
+        }
+        else if (arr_part[0] == "frame")
+        {
+            if (int.TryParse(arr_part[1], out int frameCount))
+            {
+                currentFrame = frameCount;
 
-            Debug.Log("Óë·şÎñÆ÷¶Ï¿ªÁ¬½Ó");
+                for (int i = 2; i < arr_part.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(arr_part[i]))
+                    {
+                        //æ ¼å¼ï¼šP1:H:0.5,V:0.0,F:false;
+                        string playerData = arr_part[i].TrimEnd(';');
+                        UpdateGameState(playerData);
+                    }
+                }
+            }
+            else if (arr_part[0] == "pong")
+            {
+                Debug.Log("æ¥æ”¶åˆ°æœåŠ¡å™¨å“åº”");
+            }
+        }
+    }
+
+    void UpdateGameState(string playerData)
+    {
+        //æ ¼å¼ï¼šP1:H:0.5,V:0.0,F:false
+        string[] colonParts = playerData.Split(':');
+        if (colonParts.Length >= 2)
+        {
+            string playerId = colonParts[0];
+            Debug.Log($"ç©å®¶ {playerId} çš„æ•°æ®: {playerData}");
         }
     }
 }
