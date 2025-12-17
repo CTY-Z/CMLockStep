@@ -1,0 +1,1 @@
+protogen.exe --proto_path=. --csharp_out=../Unity/Assets/ProtobufGen *.proto
