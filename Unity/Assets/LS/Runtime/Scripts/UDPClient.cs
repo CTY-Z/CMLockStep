@@ -54,21 +54,13 @@ namespace LS
 
             if (Time.frameCount % 2 == 0)
             {
-                SendInput();
+                //SendInput();
             }
         }
 
         private void OnDestroy()
         {
-            m_running = false;
-
-            sendEvent.Set();
-            sendEvent.Dispose();
-
-            m_receiveThread?.Join(500);
-            m_sendThread?.Join(500);
-
-            m_socket?.Close();
+            Disconnect();
         }
 
         void OnGUI()
@@ -80,9 +72,11 @@ namespace LS
             if (GUILayout.Button("发送测试消息"))
                 SendMsg("ping");
 
+            if (GUILayout.Button("断开连接"))
+                Disconnect();
+
             GUILayout.EndArea();
         }
-
 
 
 
@@ -124,6 +118,8 @@ namespace LS
 
         private void SendMsg(string msg)
         {
+            if (!m_running) return;
+
             byte[] data = Encoding.UTF8.GetBytes(msg);
             que_send.Enqueue(data);
             sendEvent.Set();
@@ -150,6 +146,30 @@ namespace LS
                 }
             }
         }
+
+        private void Disconnect()
+        {
+            SendMsg("disconnect");
+        }
+
+        private void AfterDisconnect()
+        {
+            if (!m_running) return;
+
+            SendMsg("disconnect");
+            m_running = false;
+
+            sendEvent.Set();
+            sendEvent.Dispose();
+
+            m_receiveThread?.Join(500);
+            m_sendThread?.Join(500);
+
+            m_socket?.Close();
+
+            Debug.Log("与服务器断开连接");
+        }
+
 
         private void ReceiveThread()
         {
@@ -179,6 +199,8 @@ namespace LS
                 }
             }
         }
+
+
 
         private void CollectInput()
         {
@@ -236,9 +258,9 @@ namespace LS
                 }
             }
             else if (arr_part[0] == "pong")
-            {
                 Debug.Log("接收到服务器响应");
-            }
+            else if (arr_part[0] == "disconnect")
+                AfterDisconnect();
         }
 
         void UpdateGameState(string playerData)

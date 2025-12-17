@@ -98,6 +98,8 @@ namespace LSServer.Server
             {
                 if (dic_client_info.ContainsKey(endPoint))
                 {
+                    dic_client_info[endPoint].SendMsg("disconnect");
+
                     int clientId = dic_client_info[endPoint].ClientID;
                     dic_client_info.Remove(endPoint);
                     Console.WriteLine($"客户端 {clientId} ({endPoint}) 断开连接");
@@ -159,9 +161,8 @@ namespace LSServer.Server
                     // 新客户端连接
                     string[] arr_part = msg.Split('|');
                     if (arr_part[0] == "connect")
-                    {
                         RegisterClient(endPoint);
-                    }
+
                     return;
                 }
                 else

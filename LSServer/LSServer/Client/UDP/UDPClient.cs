@@ -23,12 +23,12 @@ namespace LSServer.Client
 
         public override void SendMsg(string msg)
         {
-
+            NetManager.Instance.UDPServer.SendToClient(endPoint, msg);
         }
 
         protected override void Disconnect()
         {
-
+            NetManager.Instance.UDPServer.RemoveClient(endPoint);
         }
 
         public override void ProcessMsg(string msg)
@@ -46,11 +46,11 @@ namespace LSServer.Client
                     break;
 
                 case "ping":
-                    NetManager.Instance.UDPServer.SendToClient(endPoint, "pong");
+                    SendMsg("pong");
                     break;
 
                 case "disconnect":
-                    NetManager.Instance.UDPServer.RemoveClient(endPoint);
+                    Disconnect();
                     break;
             }
         }
