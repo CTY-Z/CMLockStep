@@ -42,10 +42,10 @@ public class NetworkClient : MonoBehaviour
 
         CollectInput();
 
-        //if (m_isConnected && Time.frameCount % 2 == 0)
-        //{
-        //    SendInput();
-        //}
+        if (m_isConnected && Time.frameCount % 2 == 0)
+        {
+            SendInput();
+        }
     }
 
     void OnGUI()

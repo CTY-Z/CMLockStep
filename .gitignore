@@ -47,6 +47,9 @@ LSServer/.nuget/
 # Unity特定忽略（相对路径）
 # ==============================
 
+#多开的Unity客户端
+Unity_clone*
+
 # Unity 生成文件
 Unity/[Ll]ibrary/
 Unity/[Tt]emp/
