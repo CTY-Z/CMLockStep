@@ -20,7 +20,6 @@ namespace LS
         [Header("性能设置")]
         public int receiveBufferSize = 8192;
         public int sendBufferSize = 8192;
-        public bool noDelay = true;
         public int currentFrame = 0;
 
 
@@ -38,6 +37,8 @@ namespace LS
         private string m_currentInput;
         private DateTime m_lastSendTime;
         private DateTime m_lastReceiveTime;
+
+        private AutoResetEvent sendEvent = new AutoResetEvent(false);
 
         private void Start()
         {
@@ -60,6 +61,9 @@ namespace LS
         private void OnDestroy()
         {
             m_running = false;
+
+            sendEvent.Set();
+            sendEvent.Dispose();
 
             m_receiveThread?.Join(500);
             m_sendThread?.Join(500);
@@ -92,6 +96,8 @@ namespace LS
 
                 m_socket.Blocking = false;
 
+                receiveBuffer = new byte[1024];
+
                 IPAddress ip = IPAddress.Parse(serverIP);
                 m_serverEndPoint = new IPEndPoint(ip, serverPort);
 
@@ -120,24 +126,27 @@ namespace LS
         {
             byte[] data = Encoding.UTF8.GetBytes(msg);
             que_send.Enqueue(data);
+            sendEvent.Set();
         }
         private void SendThread()
         {
-            receiveBuffer = new byte[1024];
 
             while (m_running)
             {
                 try
                 {
                     if (que_send.TryDequeue(out byte[] data))
+                    {
                         m_socket.SendTo(data, m_serverEndPoint);
-                    else
-                        Thread.Sleep(1);
+                        continue;
+                    }
+                    
+                    sendEvent.WaitOne(50);
                 }
                 catch (Exception ex)
                 {
                     if (m_running)
-                        Debug.LogError($"接收线程错误: {ex.Message}");
+                        Debug.LogError($"发送线程错误: {ex.Message}");
                 }
             }
         }
@@ -155,7 +164,7 @@ namespace LS
 
                         if (bytesRead > 0)
                         {
-                            byte[] data = data = new byte[bytesRead];
+                            byte[] data = new byte[bytesRead];
                             Buffer.BlockCopy(receiveBuffer, 0, data, 0, bytesRead);
                             que_receive.Enqueue(data);
                         }

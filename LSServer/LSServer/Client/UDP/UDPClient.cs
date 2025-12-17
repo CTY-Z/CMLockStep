@@ -23,12 +23,12 @@ namespace LSServer.Client
 
         public override void SendMsg(string msg)
         {
-            throw new NotImplementedException();
+
         }
 
         protected override void Disconnect()
         {
-            throw new NotImplementedException();
+
         }
 
         public override void ProcessMsg(string msg)
