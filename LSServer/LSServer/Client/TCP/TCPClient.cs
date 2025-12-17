@@ -1,21 +1,20 @@
-﻿using LS.Server;
+﻿using LSServer.Server;
 using LSServer.Utils;
 using System.Net.Sockets;
 using System.Text;
 
 namespace LSServer.Client
 {
-    internal class ClientHandler
+    internal class TCPClient : ClientBase
     {
         private TcpClient m_client;
         private NetworkStream m_stream;
-        private int m_clientID;
         private bool m_isConnented = true;
 
         public int ClientID => m_clientID;
         public bool IsConnented => m_isConnented;
 
-        public ClientHandler(TcpClient client, int clientID)
+        public TCPClient(TcpClient client, int clientID)
         {
             m_client = client;
             m_stream = client.GetStream();
@@ -40,7 +39,7 @@ namespace LSServer.Client
                     string msg = Encoding.UTF8.GetString(buffer);
                     Debug.Log($"收到客户端{m_clientID}: {msg}");
 
-                    ProcessMessage(msg);
+                    ProcessMsg(msg);
                 }
             }
             catch (Exception ex)
@@ -53,7 +52,7 @@ namespace LSServer.Client
             }
         }
 
-        void ProcessMessage(string msg)
+        public override void ProcessMsg(string msg)
         {
             if (msg.StartsWith("input|"))
             {
@@ -61,14 +60,14 @@ namespace LSServer.Client
                 if (arr_part.Length >= 3)
                 {
                     string inputData = arr_part[2];
-                    Program.RecordInput(m_clientID, inputData);
+                    TCPServer.RecordInput(m_clientID, inputData);
                 }
             }
-            else if(msg.StartsWith("ping"))
+            else if (msg.StartsWith("ping"))
                 SendMsg("pong");
         }
 
-        public void SendMsg(string msg)
+        public override void SendMsg(string msg)
         {
             try
             {
@@ -82,7 +81,7 @@ namespace LSServer.Client
             }
         }
 
-        private void Disconnect()
+        protected override void Disconnect()
         {
             m_isConnented = false;
             m_stream?.Close();
