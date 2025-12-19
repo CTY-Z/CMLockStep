@@ -1,3 +1,4 @@
+using FrameSync;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -22,7 +23,6 @@ namespace LS
         public int sendBufferSize = 8192;
         public int currentFrame = 0;
 
-
         private Socket m_socket;
         private EndPoint m_serverEndPoint;
         private byte[] receiveBuffer;
@@ -39,6 +39,16 @@ namespace LS
         private DateTime m_lastReceiveTime;
 
         private AutoResetEvent sendEvent = new AutoResetEvent(false);
+
+        private void OnEnable()
+        {
+            AddListener();
+        }
+
+        private void OnDisable()
+        {
+            RemoveListener();
+        }
 
         private void Start()
         {
@@ -70,7 +80,7 @@ namespace LS
             GUILayout.Label($"当前输入: {m_currentInput}");
 
             if (GUILayout.Button("发送测试消息"))
-                SendMsg("ping");
+                LoginProcessor.C_S_HeartBeat();
 
             if (GUILayout.Button("断开连接"))
                 Disconnect();
@@ -78,7 +88,15 @@ namespace LS
             GUILayout.EndArea();
         }
 
+        private void AddListener()
+        {
+            GameEntry.Instance.eventPool.Register<byte[]>(EventDefine.SendMsg, SendMsg);
+        }
 
+        private void RemoveListener()
+        {
+            GameEntry.Instance.eventPool.Remove<byte[]>(EventDefine.SendMsg, SendMsg);
+        }
 
         private void InitializeSocket()
         {
@@ -107,7 +125,7 @@ namespace LS
                 Debug.Log("UPD 初始化完成");
 
                 // 发送连接请求
-                SendMsg("connect");
+                LoginProcessor.C_S_ConnectRequest();
                 m_lastReceiveTime = DateTime.Now;
             }
             catch (Exception ex)
@@ -116,11 +134,18 @@ namespace LS
             }
         }
 
-        private void SendMsg(string msg)
+        //private void SendMsg(string msg)
+        //{
+        //    if (!m_running) return;
+        //
+        //    byte[] data = Encoding.UTF8.GetBytes(msg);
+        //    que_send.Enqueue(data);
+        //    sendEvent.Set();
+        //}
+        public void SendMsg(byte[] data)
         {
             if (!m_running) return;
 
-            byte[] data = Encoding.UTF8.GetBytes(msg);
             que_send.Enqueue(data);
             sendEvent.Set();
         }
@@ -149,14 +174,14 @@ namespace LS
 
         private void Disconnect()
         {
-            SendMsg("disconnect");
+            //SendMsg("disconnect");
         }
 
         private void AfterDisconnect()
         {
             if (!m_running) return;
 
-            SendMsg("disconnect");
+            //SendMsg("disconnect");
             m_running = false;
 
             sendEvent.Set();
@@ -217,7 +242,7 @@ namespace LS
                 return;
 
             string msg = $"input|{m_currentInput}";
-            SendMsg(msg);
+            //SendMsg(msg);
         }
 
 

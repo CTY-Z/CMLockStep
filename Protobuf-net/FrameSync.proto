@@ -11,12 +11,12 @@ message Vector3 {
 // 玩家输入
 message PlayerInput {
     int32 player_id = 1;
-    int32 frame_number = 2;      // 关键：帧序号，用于解决乱序
+    int32 frame_number = 2; // 关键：帧序号，用于解决乱序
     float move_x = 3;
     float move_y = 4;
     bool fire = 5;
     bool jump = 6;
-    uint64 timestamp = 7;        // 客户端发送时间戳
+    uint64 timestamp = 7; // 客户端发送时间戳
 }
 
 // 游戏状态（服务器广播）
@@ -36,10 +36,10 @@ message PlayerState {
 
 // 网络层包装消息（推荐！）
 message NetworkPacket {
-    PacketType type = 1;          // 消息类型
-    int32 sequence = 2;           // 序列号（用于可靠UDP）
-    int32 ack = 3;                // 确认号
-    bytes payload = 4;            // 实际消息数据
+    PacketType type = 1; // 消息类型
+    int32 sequence = 2; // 序列号（用于可靠UDP）
+    int32 ack = 3; // 确认号
+    bytes payload = 4; // 实际消息数据
     
     enum PacketType {
         INPUT = 0;
