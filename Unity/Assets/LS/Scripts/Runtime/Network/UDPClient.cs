@@ -1,4 +1,5 @@
 using FrameSync;
+using Login;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -91,11 +92,13 @@ namespace LS
         private void AddListener()
         {
             GameEntry.Instance.eventPool.Register<byte[]>(ProtoStrDefine.SendMsg, SendMsg);
+            GameEntry.Instance.eventPool.Register<ConnectResponse>(ProtoStrDefine.S_C_ConnectResponse, Connect);
         }
 
         private void RemoveListener()
         {
             GameEntry.Instance.eventPool.Remove<byte[]>(ProtoStrDefine.SendMsg, SendMsg);
+            GameEntry.Instance.eventPool.Remove<ConnectResponse>(ProtoStrDefine.S_C_ConnectResponse, Connect);
         }
 
         private void InitializeSocket()
@@ -125,7 +128,12 @@ namespace LS
                 Debug.Log("UPD 初始化完成");
 
                 // 发送连接请求
-                LoginProcessor.C_S_ConnectRequest();
+                var data = new ConnectRequest
+                {
+                    PlayerName = "client_1",
+                    IsConnect = true,
+                };
+                LoginProcessor.C_S_ConnectRequest(data);
                 m_lastReceiveTime = DateTime.Now;
             }
             catch (Exception ex)
@@ -158,6 +166,7 @@ namespace LS
                 {
                     if (que_send.TryDequeue(out byte[] data))
                     {
+                        m_lastReceiveTime = DateTime.Now;
                         m_socket.SendTo(data, m_serverEndPoint);
                         continue;
                     }
@@ -174,7 +183,25 @@ namespace LS
 
         private void Disconnect()
         {
-            //SendMsg("disconnect");
+            if (!m_running) return;
+
+            // 发送断开连接请求
+            var data = new ConnectRequest
+            {
+                PlayerName = "client_1",
+                IsConnect = false,
+            };
+            LoginProcessor.C_S_ConnectRequest(data);
+        }
+
+        private void Connect(ConnectResponse data)
+        {
+            if (data.Success)
+            {
+
+            }
+            else
+                AfterDisconnect();
         }
 
         private void AfterDisconnect()
@@ -195,7 +222,6 @@ namespace LS
             Debug.Log("与服务器断开连接");
         }
 
-
         private void ReceiveThread()
         {
             while (m_running)
@@ -206,6 +232,7 @@ namespace LS
                     {
                         EndPoint sender = new IPEndPoint(IPAddress.Any, 0);
                         int bytesRead = m_socket.ReceiveFrom(receiveBuffer, ref sender);
+                        m_lastReceiveTime = DateTime.Now;
 
                         if (bytesRead > 0)
                         {
@@ -225,8 +252,6 @@ namespace LS
             }
         }
 
-
-
         private void CollectInput()
         {
             // 收集键盘输入
@@ -244,8 +269,6 @@ namespace LS
             string msg = $"input|{m_currentInput}";
             //SendMsg(msg);
         }
-
-
 
         private void ProcessMsg(byte[] buffer)
         {
