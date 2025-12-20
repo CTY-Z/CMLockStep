@@ -1,4 +1,5 @@
-﻿using LSServer.Client;
+﻿using Login;
+using LSServer.Client;
 using LSServer.Utils;
 using System.Net;
 using System.Net.Sockets;
@@ -18,7 +19,6 @@ namespace LSServer.Server
         private int m_frameCount = 0;
         private bool m_running = true;
 
-
         public void Start()
         {
             Console.WriteLine("启动UDP服务端...");
@@ -32,6 +32,8 @@ namespace LSServer.Server
             Thread frameThread = new Thread(FrameSyncLoop);
             frameThread.IsBackground = true;
             frameThread.Start();
+
+            EventPool.Register<ProcessData>(ProtoStrDefine.SendMsg, SendToClient);
 
             Console.WriteLine("按任意键停止服务器...");
             Console.ReadKey();
@@ -59,7 +61,7 @@ namespace LSServer.Server
 
                     // 广播给所有客户端
                     foreach (var client in dic_client_info.Values)
-                        SendToClient(client.endPoint, frameData.ToString());
+                        //SendToClient(client.endPoint, frameData.ToString()); todo
 
                     // 清空本帧输入
                     dic_id_input.Clear();
@@ -72,22 +74,27 @@ namespace LSServer.Server
 
         public void Stop()
         {
+            EventPool.Remove<ProcessData>(ProtoStrDefine.SendMsg, SendToClient);
+
             m_running = false;
             m_server?.Close();
             Console.WriteLine("服务器已停止");
         }
 
-
-
-        void RegisterClient(IPEndPoint endPoint)
+        public void RegisterClient(IPEndPoint endPoint, ConnectRequest data)
         {
             lock (m_clientLock)
             {
                 int clientId = dic_client_info.Count + 1;
-                dic_client_info[endPoint] = new UDPClient(clientId, endPoint);
+                dic_client_info[endPoint] = new UDPClient(clientId, endPoint, data);
 
-                // 发送欢迎消息
-                SendToClient(endPoint, $"welcome|{clientId}");
+                ConnectResponse temp = new ConnectResponse()
+                {
+                    ClientId = clientId,
+                    Success = true,
+                    Message = "connect",
+                };
+                LoginProcessor.S_C_ConnectResponse(endPoint, temp);
                 Console.WriteLine($"客户端注册: {endPoint} -> ID: {clientId}");
             }
         }
@@ -98,26 +105,33 @@ namespace LSServer.Server
             {
                 if (dic_client_info.ContainsKey(endPoint))
                 {
-                    dic_client_info[endPoint].SendMsg("disconnect");
+                    UDPClient client = dic_client_info[endPoint];
 
-                    int clientId = dic_client_info[endPoint].ClientID;
+                    ConnectResponse temp = new ConnectResponse()
+                    {
+                        ClientId = client.ClientID,
+                        Success = false,
+                        Message = "disconnect",
+                    };
+                    LoginProcessor.S_C_ConnectResponse(endPoint, temp);
+
+                    int clientId = client.ClientID;
                     dic_client_info.Remove(endPoint);
                     Console.WriteLine($"客户端 {clientId} ({endPoint}) 断开连接");
                 }
             }
         }
 
-        public void SendToClient(IPEndPoint endPoint, string message)
+        public void SendToClient(ProcessData processData)
         {
             try
             {
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                m_server.Send(data, data.Length, endPoint);
+                m_server.Send(processData.dataByte, processData.dataByte.Length, processData.endPoint);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"发送到 {endPoint} 失败: {ex.Message}");
-                RemoveClient(endPoint);
+                Console.WriteLine($"发送到 {processData.endPoint} 失败: {ex.Message}");
+                RemoveClient(processData.endPoint);
             }
         }
 
@@ -137,10 +151,9 @@ namespace LSServer.Server
                 {
                     IPEndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
                     byte[] data = m_server.Receive(ref clientEndPoint);
-                    string message = Encoding.UTF8.GetString(data);
 
                     // 处理消息
-                    ProcessMsg(clientEndPoint, message);
+                    ProcessMsg(clientEndPoint, data);
                 }
             }
             catch (Exception ex)
@@ -150,26 +163,18 @@ namespace LSServer.Server
             }
         }
 
-        private void ProcessMsg(IPEndPoint endPoint, string msg)
+        private void ProcessMsg(IPEndPoint endPoint, byte[] data)
         {
-            Console.WriteLine($"收到来自 {endPoint}: {msg}");
-
+            //Console.WriteLine($"收到来自 {endPoint}: {msg}");
             lock (m_clientLock)
             {
-                if (!dic_client_info.ContainsKey(endPoint))
-                {
-                    // 新客户端连接
-                    string[] arr_part = msg.Split('|');
-                    if (arr_part[0] == "connect")
-                        RegisterClient(endPoint);
-
-                    return;
-                }
-                else
-                {
-                    UDPClient client = dic_client_info[endPoint];
-                    client.ProcessMsg(msg);
-                }
+                //if (!dic_client_info.ContainsKey(endPoint))
+                //{
+                //    // 新客户端连接
+                //    RegisterClient(endPoint);
+                //    return;
+                //}
+                ProtoHandler.OnRecvMsg(endPoint, data);
             }
         }
     }

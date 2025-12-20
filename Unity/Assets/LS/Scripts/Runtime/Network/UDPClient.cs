@@ -90,12 +90,12 @@ namespace LS
 
         private void AddListener()
         {
-            GameEntry.Instance.eventPool.Register<byte[]>(EventDefine.SendMsg, SendMsg);
+            GameEntry.Instance.eventPool.Register<byte[]>(ProtoStrDefine.SendMsg, SendMsg);
         }
 
         private void RemoveListener()
         {
-            GameEntry.Instance.eventPool.Remove<byte[]>(EventDefine.SendMsg, SendMsg);
+            GameEntry.Instance.eventPool.Remove<byte[]>(ProtoStrDefine.SendMsg, SendMsg);
         }
 
         private void InitializeSocket()
@@ -249,43 +249,7 @@ namespace LS
 
         private void ProcessMsg(byte[] buffer)
         {
-            string msg = Encoding.UTF8.GetString(buffer);
-            HandleServerMsg(msg);
-        }
-
-        void HandleServerMsg(string msg)
-        {
-            string[] arr_part = msg.Split("|");
-
-            if (showLog)
-                Debug.Log($"收到{msg}");
-
-            if (arr_part[0] == "welcome")
-            {
-                if (int.TryParse(arr_part[1], out int ID))
-                    Debug.Log($"服务器分配ID:{ID}");
-            }
-            else if (arr_part[0] == "frame")
-            {
-                if (int.TryParse(arr_part[1], out int frameCount))
-                {
-                    currentFrame = frameCount;
-
-                    for (int i = 2; i < arr_part.Length; i++)
-                    {
-                        if (!string.IsNullOrEmpty(arr_part[i]))
-                        {
-                            //格式：P1:H:0.5,V:0.0,F:false;
-                            string playerData = arr_part[i].TrimEnd(';');
-                            UpdateGameState(playerData);
-                        }
-                    }
-                }
-            }
-            else if (arr_part[0] == "pong")
-                Debug.Log("接收到服务器响应");
-            else if (arr_part[0] == "disconnect")
-                AfterDisconnect();
+            ProtoHandler.OnRecvMsg(buffer);
         }
 
         void UpdateGameState(string playerData)

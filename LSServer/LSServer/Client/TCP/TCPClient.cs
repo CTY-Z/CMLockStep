@@ -25,7 +25,7 @@ namespace LSServer.Client
         {
             try
             {
-                SendMsg($"welcome|{m_clientID}");
+                SendMsg(null);
                 Debug.Log($"分配ID给客户端:{m_clientID}");
 
                 byte[] buffer = new byte[1024];
@@ -64,21 +64,21 @@ namespace LSServer.Client
                 }
             }
             else if (msg.StartsWith("ping"))
-                SendMsg("pong");
+                SendMsg(null);
         }
 
-        public override void SendMsg(string msg)
+        public override void SendMsg(byte[] data)
         {
-            try
-            {
-                //Debug.Log($"给客户端发送了 - {msg}");
-                byte[] data = Encoding.UTF8.GetBytes(msg);
-                m_stream.Write(data, 0, data.Length);
-            }
-            catch
-            {
-                Disconnect();
-            }
+            //try
+            //{
+            //    //Debug.Log($"给客户端发送了 - {msg}");
+            //    byte[] data = Encoding.UTF8.GetBytes(msg);
+            //    m_stream.Write(data, 0, data.Length);
+            //}
+            //catch
+            //{
+            //    Disconnect();
+            //}
         }
 
         protected override void Disconnect()

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEditor.UI;
 using UnityEngine;
 using static UnityEngine.Rendering.ReloadAttribute;
@@ -26,7 +28,20 @@ namespace LS
             }
 
             byte[] result = ProtobufHelper.Encode(value.cmd, value.param, data);
-            GameEntry.Instance.eventPool.Fire(EventDefine.SendMsg, result);
+            GameEntry.Instance.eventPool.Fire(ProtoStrDefine.SendMsg, result);
+        }
+
+        public static void OnRecvMsg(byte[] data)
+        {
+            var tuple = ProtobufHelper.DecodeHeader(data);
+
+            if (dic_ID_process.TryGetValue(tuple.cmd, out BaseProcessor processor))
+            {
+                Action<byte[]> handler = processor.GetHandler(tuple.param);
+                handler(data);
+            }
+            else
+                Debug.LogError($"{tuple.cmd} - {tuple.param} - ProtoHandler找不到对应事件");
         }
     }
 }

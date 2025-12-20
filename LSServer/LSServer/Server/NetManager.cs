@@ -25,6 +25,11 @@ namespace LSServer.Server
             }
         }
 
+        public void Init()
+        {
+            ProtoHandler.Create();
+        }
+
         public void TCPStart()
         {
             if(m_TCPServer == null) m_TCPServer = new TCPServer();

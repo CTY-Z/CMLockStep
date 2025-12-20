@@ -1,5 +1,6 @@
 using Login;
 using System.Xml.Linq;
+using UnityEngine;
 
 namespace LS
 {
@@ -19,19 +20,14 @@ namespace LS
                 IsConnect = true,
             };
 
-            ProtoHandler.OnSendMsg("C_S_ConnectRequest", package);
+            ProtoHandler.OnSendMsg(ProtoStrDefine.C_S_ConnectRequest, package);
         }
         //1-2
-        public static void S_C_ConnectResponse()
+        public static void S_C_ConnectResponse(byte[] data)
         {
-            var package = new ConnectResponse
-            {
-                Success = true,
-                ClientId = 0,
-                Message = ""
-            };
-
-            GameEntry.Instance.eventPool.Fire(EventDefine.S_C_ConnectResponse, package);
+            var result = ProtobufHelper.DecodeData<ConnectResponse>(data);
+            Debug.Log($"服务器连接成功 - 服务器ID : {result.ClientId}");
+            GameEntry.Instance.eventPool.Fire(ProtoStrDefine.S_C_ConnectResponse, result);
         }
 
         //1-3
@@ -42,18 +38,14 @@ namespace LS
                 Str = "ping",
             };
 
-            ProtoHandler.OnSendMsg("C_S_HeartBeat", package);
+            ProtoHandler.OnSendMsg(ProtoStrDefine.C_S_HeartBeat, package);
         }
 
         //1-4
-        public static void S_C_HeartBeat()
+        public static void S_C_Heartbeat(byte[] data)
         {
-            var package = new Heartbeat
-            {
-                Str = "ping",
-            };
-
-            GameEntry.Instance.eventPool.Fire(EventDefine.S_C_HeartBeat, package);
+            var result = ProtobufHelper.DecodeData<Heartbeat>(data);
+            GameEntry.Instance.eventPool.Fire(ProtoStrDefine.S_C_HeartBeat, result);
         }
     }
 }

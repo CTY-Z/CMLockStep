@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-namespace LS
+namespace LSServer
 {
     public static class Protocols
     {
@@ -21,7 +20,7 @@ namespace LS
 
         public static (UInt16 cmd, UInt16 param) GetCMD(string key)
         {
-            if(dic_protoName_cmd.TryGetValue(key, out var value))
+            if (dic_protoName_cmd.TryGetValue(key, out var value))
                 return (value.cmd, value.param);
 
             return (0, 0);
@@ -36,6 +35,5 @@ namespace LS
 
             return "";
         }
-
     }
 }

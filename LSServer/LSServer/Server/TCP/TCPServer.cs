@@ -54,7 +54,8 @@ namespace LSServer.Server
                     foreach (var inputKV in dic_client_input)
                         frameData += $"P{inputKV.Key} : {inputKV.Value}";
 
-                    BroadcastToAll(frameData);
+                    byte[] dataByte = Encoding.UTF8.GetBytes(frameData);
+                    BroadcastToAll(dataByte);
                     dic_client_input.Clear();
                 }
 
@@ -63,12 +64,12 @@ namespace LSServer.Server
             }
         }
 
-        static void BroadcastToAll(string message)
+        static void BroadcastToAll(byte[] data)
         {
             foreach (var client in list_client)
             {
                 if (client.IsConnented)
-                    client.SendMsg(message);
+                    client.SendMsg(data);
             }
         }
 

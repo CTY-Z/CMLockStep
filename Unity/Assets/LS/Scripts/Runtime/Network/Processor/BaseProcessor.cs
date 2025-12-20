@@ -16,18 +16,26 @@ public struct ProtocolMessage
 
 public class BaseProcessor
 {
-    protected Dictionary<int, Action> dic_key_handler;
+    protected Dictionary<int, Action<byte[]>> dic_key_handler;
 
     public BaseProcessor()
     {
         dic_key_handler = new();
     }
 
-    protected void Add(int key, Action handler)
+    protected void Add(int key, Action<byte[]> handler)
     {
         if (dic_key_handler.ContainsKey(key))
             Debug.LogError("协议注册重复");
 
         dic_key_handler[key] = handler;
+    }
+
+    public Action<byte[]> GetHandler(int key)
+    {
+        if (dic_key_handler.ContainsKey(key))
+            return dic_key_handler[key];
+
+        return null;
     }
 }

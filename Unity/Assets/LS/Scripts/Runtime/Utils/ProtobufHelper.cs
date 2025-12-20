@@ -40,7 +40,7 @@ public static class ProtobufHelper
         return buffer;
     }
 
-    public static T Decode<T>(byte[] data) where T : global::ProtoBuf.IExtensible
+    public static (UInt16 cmd, UInt16 param) DecodeHeader(byte[] data)
     {
         if (data.Length < 8)
             Debug.LogError("消息缺失长度/cmd/param信息");
@@ -52,6 +52,16 @@ public static class ProtobufHelper
         if (totalLength + 4 != data.Length)
             Debug.LogError($"长度不匹配: 头部声明{totalLength}, 实际{data.Length - 4}");
 
+        ushort cmd = ReadUInt16(data, ref offset);
+        ushort param = ReadUInt16(data, ref offset);
+
+        return (cmd, param);
+    }
+
+    public static T DecodeData<T>(byte[] data) where T : global::ProtoBuf.IExtensible
+    {
+        int offset = 0;
+        int totalLength = ReadInt32(data, ref offset);
         ushort cmd = ReadUInt16(data, ref offset);
         ushort param = ReadUInt16(data, ref offset);
 

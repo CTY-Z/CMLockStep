@@ -1,0 +1,1 @@
+protogen.exe --proto_path=. --csharp_out=../LSServer\LSServer\ProtobufGen *.proto

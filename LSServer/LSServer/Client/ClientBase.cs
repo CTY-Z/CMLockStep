@@ -4,7 +4,7 @@
     {
         protected int m_clientID;
 
-        public abstract void SendMsg(string msg);
+        public abstract void SendMsg(byte[] data);
         public abstract void ProcessMsg(string msg);
 
         protected abstract void Disconnect();

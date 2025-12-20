@@ -12,5 +12,12 @@ namespace LSServer.Utils
         {
             Console.WriteLine(msg);
         }
+
+        public static void LogError(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(msg);
+            Console.ResetColor();
+        }
     }
 }
