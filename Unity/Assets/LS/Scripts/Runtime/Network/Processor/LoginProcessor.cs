@@ -27,6 +27,7 @@ namespace LS
             else
                 Debug.Log($"服务器断开连接 - 服务器ID : {result.ClientId} - {result.Message}");
 
+            GameEntry.Instance.model.login.SetConnectData(result);
             GameEntry.Instance.eventPool.Fire(ProtoStrDefine.S_C_ConnectResponse, result);
         }
 

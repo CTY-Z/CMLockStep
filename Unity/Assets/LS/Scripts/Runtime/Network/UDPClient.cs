@@ -36,8 +36,6 @@ namespace LS
         private bool m_running = false;
 
         private string m_currentInput;
-        private DateTime m_lastSendTime;
-        private DateTime m_lastReceiveTime;
 
         private AutoResetEvent sendEvent = new AutoResetEvent(false);
 
@@ -61,7 +59,7 @@ namespace LS
             while (que_receive.TryDequeue(out byte[] data))
                 ProcessMsg(data);
 
-            CollectInput();
+            //CollectInput();
 
             if (Time.frameCount % 2 == 0)
             {
@@ -130,11 +128,11 @@ namespace LS
                 // 发送连接请求
                 var data = new ConnectRequest
                 {
-                    PlayerName = "client_1",
+                    PlayerName = GameEntry.Instance.model.login.playerName,
                     IsConnect = true,
                 };
                 LoginProcessor.C_S_ConnectRequest(data);
-                m_lastReceiveTime = DateTime.Now;
+                GameEntry.Instance.model.login.lastReceiveTime = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -166,7 +164,7 @@ namespace LS
                 {
                     if (que_send.TryDequeue(out byte[] data))
                     {
-                        m_lastReceiveTime = DateTime.Now;
+                        GameEntry.Instance.model.login.lastReceiveTime = DateTime.Now;
                         m_socket.SendTo(data, m_serverEndPoint);
                         continue;
                     }
@@ -186,11 +184,7 @@ namespace LS
             if (!m_running) return;
 
             // 发送断开连接请求
-            var data = new ConnectRequest
-            {
-                PlayerName = "client_1",
-                IsConnect = false,
-            };
+            var data = new ConnectRequest { IsConnect = false };
             LoginProcessor.C_S_ConnectRequest(data);
         }
 
@@ -232,7 +226,7 @@ namespace LS
                     {
                         EndPoint sender = new IPEndPoint(IPAddress.Any, 0);
                         int bytesRead = m_socket.ReceiveFrom(receiveBuffer, ref sender);
-                        m_lastReceiveTime = DateTime.Now;
+                        GameEntry.Instance.model.login.lastReceiveTime = DateTime.Now;
 
                         if (bytesRead > 0)
                         {

@@ -10,6 +10,7 @@ namespace LS
     {
         public EventPool eventPool;
         public NetworkManager network;
+        public ModelManager model;
 
         public bool isCreate = false;
 
@@ -19,14 +20,16 @@ namespace LS
         {
             eventPool = new EventPool();
             network = new NetworkManager();
+            model = new ModelManager();
         }
 
         private void Start()
         {
+            network.Init();
+            model.Init();
+
             if (isCreate)
                 Instantiate(client, this.transform);
-
-            network.Init();
 
             //Heartbeat hb = new Heartbeat();
             //hb.Str = "ping";
