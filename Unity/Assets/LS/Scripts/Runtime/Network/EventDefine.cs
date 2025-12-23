@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace LS
 {
-    public static class ProtoStrDefine
+    public static class EventDefine
     {
         public static readonly string SendMsg = "SendMsg";
 

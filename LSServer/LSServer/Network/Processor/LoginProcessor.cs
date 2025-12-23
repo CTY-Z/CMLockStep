@@ -1,4 +1,5 @@
 using Login;
+using LSServer.Model;
 using LSServer.Server;
 using LSServer.Utils;
 using System.Net;
@@ -19,31 +20,32 @@ namespace LSServer
         {
             var result = ProtobufHelper.DecodeData<ConnectRequest>(recvData.dataByte);
             if (result.IsConnect)
-                NetManager.Instance.UDPServer.RegisterClient(recvData.endPoint, result);
+                ModelManager.Instance.game.RegisterClient(recvData.endPoint, result);
             else
-                NetManager.Instance.UDPServer.RemoveClient(recvData.endPoint);
+                ModelManager.Instance.game.RemoveClient(recvData.endPoint);
 
-            EventPool.Fire(ProtoStrDefine.C_S_ConnectRequest, result);
+            EventPool.Fire(EventDefine.C_S_ConnectRequest, result);
         }
         //1-2
         public static void S_C_ConnectResponse(IPEndPoint endPoint, ConnectResponse data)
         {
-            ProtoHandler.OnSendMsg(ProtoStrDefine.S_C_ConnectResponse, endPoint, data);
+            ProtoHandler.OnSendMsg(EventDefine.S_C_ConnectResponse, endPoint, data);
         }
 
         //1-3
         public static void C_S_Heartbeat(ProcessData recvData)
         {
             var result = ProtobufHelper.DecodeData<Heartbeat>(recvData.dataByte);
+            //Debug.Log($"ÐÄÌø: - {result.Str}");
             var data = new Heartbeat { Str = "pong" };
             S_C_Heartbeat(recvData.endPoint, data);
-            EventPool.Fire(ProtoStrDefine.C_S_Heartbeat, result);
+            EventPool.Fire(EventDefine.C_S_Heartbeat, result);
         }
 
         //1-4
         public static void S_C_Heartbeat(IPEndPoint endPoint, Heartbeat data)
         {
-            ProtoHandler.OnSendMsg(ProtoStrDefine.S_C_Heartbeat, endPoint, data);
+            ProtoHandler.OnSendMsg(EventDefine.S_C_Heartbeat, endPoint, data);
         }
     }
 }

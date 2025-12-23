@@ -38,7 +38,7 @@ namespace LSServer
 
             byte[] result = ProtobufHelper.Encode(value.cmd, value.param, data);
             ProcessData p = new ProcessData(endPoint, result);
-            EventPool.Fire(ProtoStrDefine.SendMsg, p);
+            EventPool.Fire(EventDefine.SendMsg, p);
         }
 
         public static void OnRecvMsg(IPEndPoint endPoint, byte[] data)

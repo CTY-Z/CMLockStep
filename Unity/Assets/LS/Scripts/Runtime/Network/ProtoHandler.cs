@@ -28,7 +28,7 @@ namespace LS
             }
 
             byte[] result = ProtobufHelper.Encode(value.cmd, value.param, data);
-            GameEntry.Instance.eventPool.Fire(ProtoStrDefine.SendMsg, result);
+            GameEntry.Instance.eventPool.Fire(EventDefine.SendMsg, result);
         }
 
         public static void OnRecvMsg(byte[] data)

@@ -1,5 +1,6 @@
 ﻿using Login;
 using LSServer.Client;
+using LSServer.Model;
 using LSServer.Utils;
 using System.Net;
 using System.Net.Sockets;
@@ -13,7 +14,7 @@ namespace LSServer.Server
         private int port = 8888;
         private object m_clientLock = new object();
 
-        private Dictionary<IPEndPoint, UDPClient> dic_client_info = new();
+        private GameModel m_gameModel;
         private Dictionary<int, string> dic_id_input = new();
 
         private int m_frameCount = 0;
@@ -21,6 +22,8 @@ namespace LSServer.Server
 
         public void Start()
         {
+            m_gameModel = ModelManager.Instance.game;
+
             Console.WriteLine("启动UDP服务端...");
             m_server = new UdpClient(port);
             Console.WriteLine($"UDP服务器监听端口: {port}");
@@ -33,7 +36,7 @@ namespace LSServer.Server
             frameThread.IsBackground = true;
             frameThread.Start();
 
-            EventPool.Register<ProcessData>(ProtoStrDefine.SendMsg, SendToClient);
+            EventPool.Register<ProcessData>(EventDefine.SendMsg, SendToClient);
 
             Console.WriteLine("按任意键停止服务器...");
             Console.ReadKey();
@@ -49,7 +52,7 @@ namespace LSServer.Server
 
                 lock (m_clientLock)
                 {
-                    if (dic_client_info.Count == 0)
+                    if (m_gameModel.GetClientCount() == 0)
                         continue;
 
                     // 构建帧数据
@@ -60,66 +63,27 @@ namespace LSServer.Server
                         frameData.Append($"P{input.Key}:{input.Value};");
 
                     // 广播给所有客户端
-                    foreach (var client in dic_client_info.Values)
+                    foreach (var client in m_gameModel.dic_client_info.Values)
                         //SendToClient(client.endPoint, frameData.ToString()); todo
 
                     // 清空本帧输入
                     dic_id_input.Clear();
 
                     if (m_frameCount % 30 == 0)
-                        Console.WriteLine($"已广播 {m_frameCount} 帧，客户端数: {dic_client_info.Count}");
+                        Console.WriteLine($"已广播 {m_frameCount} 帧，客户端数: {m_gameModel.GetClientCount()}");
                 }
             }
         }
 
         public void Stop()
         {
-            EventPool.Remove<ProcessData>(ProtoStrDefine.SendMsg, SendToClient);
+            m_gameModel = null;
+
+            EventPool.Remove<ProcessData>(EventDefine.SendMsg, SendToClient);
 
             m_running = false;
             m_server?.Close();
             Console.WriteLine("服务器已停止");
-        }
-
-        public void RegisterClient(IPEndPoint endPoint, ConnectRequest data)
-        {
-            lock (m_clientLock)
-            {
-                int clientId = dic_client_info.Count + 1;
-                dic_client_info[endPoint] = new UDPClient(clientId, endPoint, data);
-
-                ConnectResponse temp = new ConnectResponse()
-                {
-                    ClientId = clientId,
-                    Success = true,
-                    Message = "connect",
-                };
-                LoginProcessor.S_C_ConnectResponse(endPoint, temp);
-                Console.WriteLine($"客户端注册: {endPoint} -> ID: {clientId}");
-            }
-        }
-
-        public void RemoveClient(IPEndPoint endPoint)
-        {
-            lock (m_clientLock)
-            {
-                if (dic_client_info.ContainsKey(endPoint))
-                {
-                    UDPClient client = dic_client_info[endPoint];
-
-                    ConnectResponse temp = new ConnectResponse()
-                    {
-                        ClientId = client.ClientID,
-                        Success = false,
-                        Message = "disconnect",
-                    };
-                    LoginProcessor.S_C_ConnectResponse(endPoint, temp);
-
-                    int clientId = client.ClientID;
-                    dic_client_info.Remove(endPoint);
-                    Console.WriteLine($"客户端 {clientId} ({endPoint}) 断开连接");
-                }
-            }
         }
 
         public void SendToClient(ProcessData processData)
@@ -131,7 +95,7 @@ namespace LSServer.Server
             catch (Exception ex)
             {
                 Console.WriteLine($"发送到 {processData.endPoint} 失败: {ex.Message}");
-                RemoveClient(processData.endPoint);
+                m_gameModel.RemoveClient(processData.endPoint);
             }
         }
 

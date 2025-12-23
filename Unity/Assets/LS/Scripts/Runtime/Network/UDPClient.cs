@@ -1,10 +1,9 @@
-using FrameSync;
+using Cysharp.Threading.Tasks;
 using Login;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using UnityEngine;
 
@@ -72,6 +71,11 @@ namespace LS
             Disconnect();
         }
 
+        private void OnApplicationQuit()
+        {
+            AfterDisconnect();
+        }
+
         void OnGUI()
         {
             GUILayout.BeginArea(new Rect(10, 10, 300, 200));
@@ -89,14 +93,14 @@ namespace LS
 
         private void AddListener()
         {
-            GameEntry.Instance.eventPool.Register<byte[]>(ProtoStrDefine.SendMsg, SendMsg);
-            GameEntry.Instance.eventPool.Register<ConnectResponse>(ProtoStrDefine.S_C_ConnectResponse, Connect);
+            GameEntry.Instance.eventPool.Register<byte[]>(EventDefine.SendMsg, SendMsg);
+            GameEntry.Instance.eventPool.Register<ConnectResponse>(EventDefine.S_C_ConnectResponse, Connect);
         }
 
         private void RemoveListener()
         {
-            GameEntry.Instance.eventPool.Remove<byte[]>(ProtoStrDefine.SendMsg, SendMsg);
-            GameEntry.Instance.eventPool.Remove<ConnectResponse>(ProtoStrDefine.S_C_ConnectResponse, Connect);
+            GameEntry.Instance.eventPool.Remove<byte[]>(EventDefine.SendMsg, SendMsg);
+            GameEntry.Instance.eventPool.Remove<ConnectResponse>(EventDefine.S_C_ConnectResponse, Connect);
         }
 
         private void InitializeSocket()
@@ -140,6 +144,20 @@ namespace LS
             }
         }
 
+        private async void Heartbeat()
+        {
+            await HeartbeatTick();
+        }
+
+        private async UniTask HeartbeatTick()
+        {
+            while (m_running && this != null)
+            {
+                await UniTask.Delay(2000);
+                LoginProcessor.C_S_HeartBeat();
+            }
+        }
+
         //private void SendMsg(string msg)
         //{
         //    if (!m_running) return;
@@ -157,7 +175,6 @@ namespace LS
         }
         private void SendThread()
         {
-
             while (m_running)
             {
                 try
@@ -191,9 +208,7 @@ namespace LS
         private void Connect(ConnectResponse data)
         {
             if (data.Success)
-            {
-
-            }
+                Heartbeat();
             else
                 AfterDisconnect();
         }
