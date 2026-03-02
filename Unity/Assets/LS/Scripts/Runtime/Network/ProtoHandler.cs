@@ -15,6 +15,7 @@ namespace LS
         public static void Create()
         {
             dic_ID_process.Add(1, new LoginProcessor());
+            dic_ID_process.Add(2, new FrameSyncProcessor());
         }
 
         public static void OnSendMsg<T>(string key, T data) where T : global::ProtoBuf.IExtensible

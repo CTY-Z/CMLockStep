@@ -10,8 +10,11 @@ namespace LSServer
         public static readonly string C_S_ConnectRequest = "C_S_ConnectRequest";
         public static readonly string S_C_ConnectResponse = "S_C_ConnectResponse";
 
-        public static readonly string S_C_Heartbeat = "S_C_Heartbeat";
         public static readonly string C_S_Heartbeat = "C_S_Heartbeat";
+        public static readonly string S_C_Heartbeat = "S_C_Heartbeat";
+
+        public static readonly string C_S_FrameData = "C_S_FrameData";
+        public static readonly string S_C_FrameData = "S_C_FrameData";
     }
 }
 

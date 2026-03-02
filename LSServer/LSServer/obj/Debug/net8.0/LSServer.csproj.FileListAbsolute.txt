@@ -13,3 +13,7 @@ E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.pdb
 E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.genruntimeconfig.cache
 E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\ref\LSServer.dll
 E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.sourcelink.json
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\protobuf-net.dll
+E:\Fork\CMLockStep\LSServer\LSServer\bin\Debug\net8.0\protobuf-net.Core.dll
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.csproj.AssemblyReference.cache
+E:\Fork\CMLockStep\LSServer\LSServer\obj\Debug\net8.0\LSServer.csproj.Up2Date

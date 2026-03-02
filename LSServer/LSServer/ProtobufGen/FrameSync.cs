@@ -37,22 +37,19 @@ namespace FrameSync
         [global::ProtoBuf.ProtoMember(1, Name = @"player_id")]
         public int PlayerId { get; set; }
 
-        [global::ProtoBuf.ProtoMember(2, Name = @"frame_number")]
-        public int FrameNumber { get; set; }
+        [global::ProtoBuf.ProtoMember(2, Name = @"frame_idx")]
+        public int FrameIdx { get; set; }
 
-        [global::ProtoBuf.ProtoMember(3, Name = @"move_x")]
-        public float MoveX { get; set; }
+        [global::ProtoBuf.ProtoMember(3, Name = @"input_x")]
+        public float InputX { get; set; }
 
-        [global::ProtoBuf.ProtoMember(4, Name = @"move_y")]
-        public float MoveY { get; set; }
+        [global::ProtoBuf.ProtoMember(4, Name = @"input_y")]
+        public float InputY { get; set; }
 
-        [global::ProtoBuf.ProtoMember(5, Name = @"fire")]
-        public bool Fire { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6, Name = @"jump")]
+        [global::ProtoBuf.ProtoMember(5, Name = @"jump")]
         public bool Jump { get; set; }
 
-        [global::ProtoBuf.ProtoMember(7, Name = @"timestamp")]
+        [global::ProtoBuf.ProtoMember(6, Name = @"timestamp")]
         public ulong Timestamp { get; set; }
 
     }

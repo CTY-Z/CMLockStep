@@ -243,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1eacefbb38cfc4fa4a311c165f873e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isCreate: 1
+  isCreate: 0
   client: {fileID: 7136025939912425037, guid: ed2110384e830d04caa23d8194f6f55e, type: 3}
 --- !u!4 &355899645
 Transform:

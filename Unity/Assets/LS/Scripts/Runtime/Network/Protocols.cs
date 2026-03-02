@@ -13,6 +13,9 @@ namespace LS
             [EventDefine.S_C_ConnectResponse] = (1, 2),
             [EventDefine.C_S_HeartBeat]       = (1, 3),
             [EventDefine.S_C_HeartBeat]       = (1, 4),
+
+            [EventDefine.C_S_FrameData]       = (2, 1),
+            [EventDefine.S_C_FrameData]       = (2, 2),
         };
 
         public readonly static Dictionary<int, string> dic_ID_eventKey = new()
@@ -21,6 +24,9 @@ namespace LS
             [1 * 256 + 2] = EventDefine.S_C_ConnectResponse,
             [1 * 256 + 3] = EventDefine.C_S_HeartBeat,
             [1 * 256 + 4] = EventDefine.S_C_HeartBeat,
+
+            [2 * 256 + 1] = EventDefine.C_S_FrameData,
+            [2 * 256 + 2] = EventDefine.S_C_FrameData,
         };
 
         public static (UInt16 cmd, UInt16 param) GetCMD(string key)

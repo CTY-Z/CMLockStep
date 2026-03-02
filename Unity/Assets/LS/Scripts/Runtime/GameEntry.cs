@@ -11,6 +11,7 @@ namespace LS
         public EventPool eventPool;
         public NetworkManager network;
         public ModelManager model;
+        public LSWorld world;
 
         public bool isCreate = false;
 
@@ -21,12 +22,14 @@ namespace LS
             eventPool = new EventPool();
             network = new NetworkManager();
             model = new ModelManager();
+            world = new LSWorld();
         }
 
         private void Start()
         {
             network.Init();
             model.Init();
+            world.Init();
 
             if (isCreate)
                 Instantiate(client, this.transform);
@@ -43,6 +46,10 @@ namespace LS
             //Debug.Log(ProtobufHelper.DecodeData<Heartbeat>(dataByte).Str);
         }
 
+        private void OnApplicationQuit()
+        {
+            world.ShutDown();
+        }
     }
 }
 
