@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEditor.UI;
 using UnityEngine;
-using static UnityEngine.Rendering.ReloadAttribute;
 
 namespace LS
 {

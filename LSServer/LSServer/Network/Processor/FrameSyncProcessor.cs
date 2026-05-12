@@ -1,8 +1,11 @@
 using FrameSync;
 using Login;
+using LSServer.Model;
 using LSServer.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 
 namespace LSServer
 {
@@ -13,18 +16,23 @@ namespace LSServer
             Add(1, C_S_FrameData);
         }
 
-        //2-1
+        //2-1 client -> server
         public static void C_S_FrameData(ProcessData recvData)
         {
+            if (!ModelManager.Instance.game.dic_client_info.TryGetValue(recvData.endPoint, out var clientData)) return;
+
             var result = ProtobufHelper.DecodeData<FrameSync.PlayerInput>(recvData.dataByte);
-            Debug.Log($"ÊÕµ½ÓÉ{result.PlayerId}·¢³öµÄµÚ{result.FrameIdx}Ö¡");
+            result.PlayerId = clientData.ClientID;
+            Debug.Log($"æ”¶åˆ°çŽ©å®¶{result.PlayerId}çš„è¾“å…¥");
             EventPool.Fire(EventDefine.C_S_FrameData, result);
+
+            NetManager.Instance.UDPServer.RegisterInput(result.PlayerId, result);
         }
 
-        //2-2
-        public static void S_C_FrameData(byte[] dataByte)
+        //2-2 server -> client
+        public static void S_C_FrameData(IPEndPoint endPoint, FrameSync.FrameInput data)
         {
-            
+            ProtoHandler.OnSendMsg(EventDefine.S_C_FrameData, endPoint, data);
         }
     }
 }

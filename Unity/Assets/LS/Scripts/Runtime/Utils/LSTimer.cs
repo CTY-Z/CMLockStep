@@ -6,14 +6,14 @@ using UnityEngine;
 
 public class LSTimer : IDisposable
 {
-    [SerializeField] private int serverFPS = 30;        // ·þÎñÆ÷Âß¼­Ö¡ÂÊ
-    [SerializeField] private int renderFPS = 60;        // ¿Í»§¶ËäÖÈ¾Ö¡ÂÊ
-    [SerializeField] private int bufferFrames = 3;      // ÊäÈë»º³åÖ¡Êý
+    [SerializeField] private int serverFPS = 30;        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½Ö¡ï¿½ï¿½
+    [SerializeField] private int renderFPS = 60;        // ï¿½Í»ï¿½ï¿½ï¿½ï¿½ï¿½È¾Ö¡ï¿½ï¿½
+    [SerializeField] private int bufferFrames = 3;      // ï¿½ï¿½ï¿½ë»ºï¿½ï¿½Ö¡ï¿½ï¿½
 
     private int currentLogicFrame = 0;
     private CancellationTokenSource logicCts;
 
-    public event Action OnTick;     // ·þÎñÆ÷Ö¡ÊÂ¼þ
+    public event Action OnTick;     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½Â¼ï¿½
 
     public void Start()
     {
@@ -22,7 +22,7 @@ public class LSTimer : IDisposable
 
     async void StartFrameSync()
     {
-        // Æô¶¯Âß¼­Ö¡Ð­³Ì
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½Ö¡Ð­ï¿½ï¿½
         logicCts = new CancellationTokenSource();
         _ = RunLogicFrames(logicCts.Token);
 
@@ -32,7 +32,7 @@ public class LSTimer : IDisposable
     {
         double frameIntervalMs = 1000.0 / serverFPS;
 
-        // Ê¹ÓÃUniTask¶¨Ê±Æ÷
+        // Ê¹ï¿½ï¿½UniTaskï¿½ï¿½Ê±ï¿½ï¿½
         await foreach (var _ in UniTaskAsyncEnumerable.Timer(
             TimeSpan.Zero,
             TimeSpan.FromMilliseconds(frameIntervalMs))
@@ -40,7 +40,7 @@ public class LSTimer : IDisposable
         {
             if (token.IsCancellationRequested) break;
 
-            // ¼ÇÂ¼¿ªÊ¼Ê±¼ä
+            // ï¿½ï¿½Â¼ï¿½ï¿½Ê¼Ê±ï¿½ï¿½
             var frameStartTime = Time.realtimeSinceStartup;
 
             try
@@ -49,7 +49,7 @@ public class LSTimer : IDisposable
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Âß¼­Ö¡{currentLogicFrame}´íÎó: {ex.Message}");
+                Debug.LogError($"ï¿½ß¼ï¿½Ö¡{currentLogicFrame}ï¿½ï¿½ï¿½ï¿½: {ex.Message}");
             }
         }
     }

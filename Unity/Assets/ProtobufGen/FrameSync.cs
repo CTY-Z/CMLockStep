@@ -37,8 +37,8 @@ namespace FrameSync
         [global::ProtoBuf.ProtoMember(1, Name = @"player_id")]
         public int PlayerId { get; set; }
 
-        [global::ProtoBuf.ProtoMember(2, Name = @"frame_idx")]
-        public int FrameIdx { get; set; }
+        [global::ProtoBuf.ProtoMember(2, Name = @"target_frame")]
+        public int TargetFrame { get; set; }
 
         [global::ProtoBuf.ProtoMember(3, Name = @"input_x")]
         public float InputX { get; set; }
@@ -49,8 +49,20 @@ namespace FrameSync
         [global::ProtoBuf.ProtoMember(5, Name = @"jump")]
         public bool Jump { get; set; }
 
-        [global::ProtoBuf.ProtoMember(6, Name = @"timestamp")]
-        public ulong Timestamp { get; set; }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class FrameInput : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"frame_number")]
+        public int FrameNumber { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"inputs")]
+        public global::System.Collections.Generic.List<PlayerInput> Inputs { get; } = new global::System.Collections.Generic.List<PlayerInput>();
 
     }
 

@@ -1,11 +1,7 @@
 ﻿using LSServer.Object;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LSServer.Server;
 
-namespace LSServer.Server
+namespace LSServer
 {
     internal class NetManager : Singleton<NetManager>
     {
@@ -13,8 +9,6 @@ namespace LSServer.Server
         public TCPServer TCPServer { get { return m_TCPServer; } }
         private UDPServer m_UDPServer;
         public UDPServer UDPServer { get { return m_UDPServer; } }
-
-
 
         public void Init()
         {

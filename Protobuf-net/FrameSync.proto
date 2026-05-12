@@ -11,11 +11,16 @@ message Vector3 {
 // 玩家输入
 message PlayerInput {
     int32 player_id = 1;
-    int32 frame_idx = 2; // 关键：帧序号，用于解决乱序
+    int32 target_frame = 2;
     float input_x = 3;
     float input_y = 4;
     bool jump = 5;
-    uint64 timestamp = 6; // 客户端发送时间戳
+}
+
+// 每帧输入
+message FrameInput {
+    int32 frame_number = 1;
+    repeated PlayerInput inputs = 2;
 }
 
 // 游戏状态（服务器广播）

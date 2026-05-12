@@ -1,7 +1,10 @@
-﻿using Login;
+﻿using FrameSync;
+using Login;
 using LSServer.Client;
 using LSServer.Model;
 using LSServer.Utils;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -15,7 +18,8 @@ namespace LSServer.Server
         private object m_clientLock = new object();
 
         private GameModel m_gameModel;
-        private Dictionary<int, string> dic_id_input = new();
+        private Dictionary<int, Dictionary<int, FrameSync.PlayerInput>> dic_frameCount_frameInputData = new();
+        private Dictionary<int, FrameSync.PlayerInput> dic_clientID_lastInput = new();
 
         private int m_frameCount = 0;
         private bool m_running = true;
@@ -55,20 +59,38 @@ namespace LSServer.Server
                     if (m_gameModel.GetClientCount() == 0)
                         continue;
 
-                    // 构建帧数据
-                    StringBuilder frameData = new StringBuilder();
-                    frameData.Append($"frame|{m_frameCount}|");
+                    var frameInput = new FrameSync.FrameInput
+                    {
+                        FrameNumber = m_frameCount,
+                    };
 
-                    foreach (var input in dic_id_input)
-                        frameData.Append($"P{input.Key}:{input.Value};");
 
-                    // 广播给所有客户端
+                    dic_frameCount_frameInputData.TryGetValue(m_frameCount, out var dic_id_input);
+
                     foreach (var client in m_gameModel.dic_client_info.Values)
-                        //SendToClient(client.endPoint, frameData.ToString()); todo
+                    {
+                        if (dic_id_input != null && dic_id_input.TryGetValue(client.ClientID, out var input))
+                            frameInput.Inputs.Add(input);
+                        else
+                        {
+                            dic_clientID_lastInput.TryGetValue(client.ClientID, out var lastInput);
+                            if (lastInput == null)
+                                input = new FrameSync.PlayerInput { PlayerId = client.ClientID, TargetFrame = m_frameCount, 
+                                    InputX = 0, InputY = 0, Jump = false };
+                            else
+                                input = new FrameSync.PlayerInput { PlayerId = client.ClientID, TargetFrame = m_frameCount,
+                                    InputX = lastInput.InputX, InputY = lastInput.InputY, Jump = lastInput.Jump };
 
-                    // 清空本帧输入
-                    dic_id_input.Clear();
+                            frameInput.Inputs.Add(input);
+                        }
+                        dic_clientID_lastInput[client.ClientID] = input;
+                    }
 
+                    dic_frameCount_frameInputData.Remove(m_frameCount);
+
+                    foreach (var client in m_gameModel.dic_client_info.Values)
+                        FrameSyncProcessor.S_C_FrameData(client.endPoint, frameInput);
+                    
                     if (m_frameCount % 30 == 0)
                         Console.WriteLine($"已广播 {m_frameCount} 帧，客户端数: {m_gameModel.GetClientCount()}");
                 }
@@ -99,10 +121,22 @@ namespace LSServer.Server
             }
         }
 
-        public void RegisterInput(int clientID, string inputData)
+        public void RegisterInput(int clientID, FrameSync.PlayerInput inputData)
         {
-            dic_id_input[clientID] = inputData;
-            Console.WriteLine($"记录玩家 {clientID} 输入: {inputData}");
+            lock (m_clientLock)
+            {
+                // 如果输入的帧数小于当前服务器帧数，说明是过期输入，直接丢弃
+                if(inputData.TargetFrame < m_frameCount) return; 
+
+                if (!dic_frameCount_frameInputData.TryGetValue(inputData.TargetFrame, out var frameInputData))
+                {
+                    frameInputData = new();
+                    dic_frameCount_frameInputData[inputData.TargetFrame] = frameInputData;
+                }
+
+                frameInputData[clientID] = inputData;
+                Console.WriteLine($"记录玩家 {clientID} 输入: X={inputData.InputX}, Y={inputData.InputY}, Frame={inputData.TargetFrame}");
+            }
         }
 
 
