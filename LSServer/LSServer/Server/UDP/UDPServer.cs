@@ -126,7 +126,7 @@ namespace LSServer.Server
             lock (m_clientLock)
             {
                 // 如果输入的帧数小于当前服务器帧数，说明是过期输入，直接丢弃
-                if(inputData.TargetFrame < m_frameCount) return; 
+                if(inputData.TargetFrame <= m_frameCount) return; 
 
                 if (!dic_frameCount_frameInputData.TryGetValue(inputData.TargetFrame, out var frameInputData))
                 {

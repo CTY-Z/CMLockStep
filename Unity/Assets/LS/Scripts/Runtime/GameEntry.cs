@@ -33,8 +33,9 @@ namespace LS
             network.Init();
             model.Init();
 
-            world.playerPrefab = playerPrefab;
-            world.Init();
+            LSLogic lsLogic = new LSLogic();
+            LSView lsView = new LSView(playerPrefab);
+            world.Init(lsLogic, lsView);
 
             if (isCreate)
                 Instantiate(client, this.transform);
