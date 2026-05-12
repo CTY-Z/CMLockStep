@@ -18,6 +18,14 @@ public class LSWorld
     private readonly Dictionary<int, FrameSync.PlayerInput> m_localInputHistory = new();
     private readonly Dictionary<int, FrameSync.PlayerInput> m_currentPlayerInputs = new();
 
+    LSLogic m_lsLogic;
+
+    //todo
+    public GameObject playerPrefab;
+    LSView m_lsView;
+
+    Dictionary<int, Transform> dic_ID_playerView;
+
     public int LatestServerFrame => m_latestServerFrame;
     public int LocalExecutedFrame => m_localExecutedFrame;
 
@@ -26,6 +34,9 @@ public class LSWorld
         m_latestServerFrame = 0;
         m_localExecutedFrame = 0;
         m_hasReceivedServerFrame = false;
+
+        m_lsLogic = new LSLogic();
+        m_lsView = new LSView(playerPrefab);
 
         GameEntry.Instance.eventPool.Register<FrameSync.FrameInput>(EventDefine.S_C_FrameData, OnReceiveFrameInput);
 
@@ -55,7 +66,7 @@ public class LSWorld
         if (clientId < 0)
             return;
 
-        Vector2 input = CollectInput();
+        Vector2Int input = CollectInput();
         int targetFrame = m_latestServerFrame + InputDelayFrames;
 
         FrameSync.PlayerInput playerInput = new FrameSync.PlayerInput
@@ -71,11 +82,11 @@ public class LSWorld
         FrameSyncProcessor.C_S_FrameData(targetFrame, playerInput.InputX, playerInput.InputY, playerInput.Jump);
     }
 
-    private Vector2 CollectInput()
+    private Vector2Int CollectInput()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
-        return new Vector2(horizontal, vertical);
+        return new Vector2Int((int)horizontal, (int)vertical);
     }
 
     private void ExecuteReadyFrames()
@@ -97,10 +108,10 @@ public class LSWorld
 
     private void SimulateFrame(FrameSync.FrameInput frameInput)
     {
-        foreach (FrameSync.PlayerInput input in frameInput.Inputs)
-            m_currentPlayerInputs[input.PlayerId] = input;
+        m_lsLogic.Step(frameInput);
+        m_lsView.Sync(m_lsLogic);
 
-        Debug.Log($"[LSWorld] Execute frame={frameInput.FrameNumber}, inputCount={frameInput.Inputs.Count}");
+        Debug.Log($"frame={frameInput.FrameNumber}, hash={m_lsLogic.GetHash()}");
     }
 
     private void OnReceiveFrameInput(FrameSync.FrameInput frameInput)
@@ -116,7 +127,7 @@ public class LSWorld
         if (!m_serverInputFrames.ContainsKey(frameInput.FrameNumber))
         {
             m_serverInputFrames[frameInput.FrameNumber] = frameInput;
-            Debug.Log($"[LSWorld] Receive server frame={frameInput.FrameNumber}, inputCount={frameInput.Inputs.Count}");
+            //Debug.Log($"[LSWorld] Receive server frame={frameInput.FrameNumber}, inputCount={frameInput.Inputs.Count}");
         }
     }
 

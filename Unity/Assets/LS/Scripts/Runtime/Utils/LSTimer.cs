@@ -7,8 +7,8 @@ using UnityEngine;
 public class LSTimer : IDisposable
 {
     [SerializeField] private int serverFPS = 30;        // �������߼�֡��
-    [SerializeField] private int renderFPS = 60;        // �ͻ�����Ⱦ֡��
-    [SerializeField] private int bufferFrames = 3;      // ���뻺��֡��
+    //[SerializeField] private int renderFPS = 60;        // �ͻ�����Ⱦ֡��
+    //[SerializeField] private int bufferFrames = 3;      // ���뻺��֡��
 
     private int currentLogicFrame = 0;
     private CancellationTokenSource logicCts;
@@ -20,12 +20,11 @@ public class LSTimer : IDisposable
         StartFrameSync();
     }
 
-    async void StartFrameSync()
+    void StartFrameSync()
     {
         // �����߼�֡Э��
         logicCts = new CancellationTokenSource();
         _ = RunLogicFrames(logicCts.Token);
-
     }
 
     private async UniTask RunLogicFrames(CancellationToken token)

@@ -20,14 +20,8 @@ namespace LS
                 return;
             }
 
-            var data = new FrameSync.PlayerInput
-            {
-                PlayerId = clientId,
-                TargetFrame = targetFrame,
-                InputX = inputX,
-                InputY = inputY,
-                Jump = jump,
-            };
+            var data = new FrameSync.PlayerInput { PlayerId = clientId, TargetFrame = targetFrame,
+                InputX = inputX, InputY = inputY, Jump = jump, };
 
             ProtoHandler.OnSendMsg(EventDefine.C_S_FrameData, data);
         }

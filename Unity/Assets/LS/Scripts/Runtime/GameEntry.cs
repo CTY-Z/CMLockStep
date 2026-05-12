@@ -16,9 +16,12 @@ namespace LS
         public bool isCreate = false;
 
         public UDPClient client;
+        public GameObject playerPrefab;
 
         private void Awake()
         {
+            Application.runInBackground = true;
+
             eventPool = new EventPool();
             network = new NetworkManager();
             model = new ModelManager();
@@ -29,6 +32,8 @@ namespace LS
         {
             network.Init();
             model.Init();
+
+            world.playerPrefab = playerPrefab;
             world.Init();
 
             if (isCreate)

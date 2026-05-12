@@ -238,6 +238,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isCreate: 1
   client: {fileID: 7136025939912425037, guid: ed2110384e830d04caa23d8194f6f55e, type: 3}
+  playerPrefab: {fileID: 7330070632902373604, guid: a780f3535317ec24c91bd125fd8a462e,
+    type: 3}
 --- !u!4 &355899645
 Transform:
   m_ObjectHideFlags: 0
