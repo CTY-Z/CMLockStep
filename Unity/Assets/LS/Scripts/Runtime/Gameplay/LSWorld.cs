@@ -70,6 +70,8 @@ public class LSWorld
     {
         m_latestServerFrame = 0;
         m_localExecutedFrame = 0;
+        m_authoritativeExecutedFrame = 0;
+        m_inputTargetFrame = 0;
         m_hasReceivedServerFrame = false;
 
         m_lsLogic = lsLogic;
@@ -254,6 +256,7 @@ public class LSWorld
             m_localExecutedFrame = frameInput.FrameNumber - 1;
             m_authoritativeExecutedFrame = frameInput.FrameNumber - 1;
             m_inputTargetFrame = frameInput.FrameNumber + inputDelayFrames;
+            dic_frame_worldSnapshot[m_localExecutedFrame] = m_lsLogic.CreateSnapshot();
         }
 
         m_latestServerFrame = Mathf.Max(m_latestServerFrame, frameInput.FrameNumber);
