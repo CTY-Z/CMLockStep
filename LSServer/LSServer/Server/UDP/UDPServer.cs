@@ -1,4 +1,4 @@
-﻿using FrameSync;
+using FrameSync;
 using Login;
 using LSServer.Client;
 using LSServer.Model;
@@ -90,7 +90,7 @@ namespace LSServer.Server
 
                     foreach (var client in m_gameModel.dic_client_info.Values)
                         FrameSyncProcessor.S_C_FrameData(client.endPoint, frameInput);
-                    
+
                     if (m_frameCount % 30 == 0)
                         Console.WriteLine($"已广播 {m_frameCount} 帧，客户端数: {m_gameModel.GetClientCount()}");
                 }

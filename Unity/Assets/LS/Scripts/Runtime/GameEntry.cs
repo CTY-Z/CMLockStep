@@ -35,7 +35,7 @@ namespace LS
 
             LSLogic lsLogic = new LSLogic();
             LSView lsView = new LSView(playerPrefab);
-            world.Init(lsLogic, lsView);
+            world.Init(lsLogic, lsView, new InputComparer());
 
             if (isCreate)
                 Instantiate(client, this.transform);

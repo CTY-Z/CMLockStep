@@ -6,14 +6,14 @@ using UnityEngine;
 
 public class LSTimer : IDisposable
 {
-    [SerializeField] private int serverFPS = 30;        // �������߼�֡��
-    //[SerializeField] private int renderFPS = 60;        // �ͻ�����Ⱦ֡��
-    //[SerializeField] private int bufferFrames = 3;      // ���뻺��֡��
+    [SerializeField] private int serverFPS = 30;        // 服务端逻辑帧率
+    //[SerializeField] private int renderFPS = 60;        // 客户端渲染帧率
+    //[SerializeField] private int bufferFrames = 3;      // 输入缓冲帧数
 
     private int currentLogicFrame = 0;
     private CancellationTokenSource logicCts;
 
-    public event Action OnTick;     // ������֡�¼�
+    public event Action OnTick;     // 逻辑帧事件
 
     public void Start()
     {
@@ -22,7 +22,7 @@ public class LSTimer : IDisposable
 
     void StartFrameSync()
     {
-        // �����߼�֡Э��
+        // 启动逻辑帧协程
         logicCts = new CancellationTokenSource();
         _ = RunLogicFrames(logicCts.Token);
     }
@@ -31,7 +31,7 @@ public class LSTimer : IDisposable
     {
         double frameIntervalMs = 1000.0 / serverFPS;
 
-        // ʹ��UniTask��ʱ��
+        // 使用 UniTask 定时器
         await foreach (var _ in UniTaskAsyncEnumerable.Timer(
             TimeSpan.Zero,
             TimeSpan.FromMilliseconds(frameIntervalMs))
@@ -39,7 +39,7 @@ public class LSTimer : IDisposable
         {
             if (token.IsCancellationRequested) break;
 
-            // ��¼��ʼʱ��
+            // 记录开始时间
             var frameStartTime = Time.realtimeSinceStartup;
 
             try
@@ -48,7 +48,7 @@ public class LSTimer : IDisposable
             }
             catch (Exception ex)
             {
-                Debug.LogError($"�߼�֡{currentLogicFrame}����: {ex.Message}");
+                Debug.LogError($"逻辑帧 {currentLogicFrame} 执行异常: {ex.Message}");
             }
         }
     }

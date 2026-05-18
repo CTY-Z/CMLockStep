@@ -8,7 +8,7 @@ namespace LS.Model
 {
     public class LoginModel
     {
-        public int clientID = -1;
+        public int clientID = 0;
         public string playerName = "player_0";
         public DateTime lastSendTime = DateTime.MaxValue;
         public DateTime lastReceiveTime = DateTime.MaxValue;
