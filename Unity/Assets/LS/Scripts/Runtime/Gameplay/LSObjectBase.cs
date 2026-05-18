@@ -1,21 +1,23 @@
-using LS;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class LSObjectBase
+namespace LS
 {
-    public int PlayerID { get; private set; }
-
-    public LSObjectBase(int playerID)
+    public abstract class LSObjectBase
     {
-        this.PlayerID = playerID;
+        public int PlayerID { get; private set; }
+
+        public LSObjectBase(int playerID)
+        {
+            this.PlayerID = playerID;
+        }
+
+        public virtual void Step(FrameSync.PlayerInput input)
+        {
+
+        }
+
+        public abstract ObjectSnapshot CreateSnapshot();
     }
-
-    public virtual void Step(FrameSync.PlayerInput input)
-    {
-
-    }
-
-    public abstract ObjectSnapshot CreateSnapshot();
 }

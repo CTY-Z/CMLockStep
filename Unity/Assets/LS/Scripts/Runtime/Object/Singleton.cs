@@ -2,22 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T : Component
+namespace LS
 {
-    private static T instance;
-    public static T Instance { 
-        get 
+    public class Singleton<T> : MonoBehaviour where T : Component
+    {
+        private static T instance;
+        public static T Instance
         {
-            if (instance == null)
+            get
             {
-                instance = FindObjectOfType<T>();
                 if (instance == null)
                 {
-                    GameObject obj = new GameObject(typeof(T).Name + "_AutoCreated");
-                    instance = obj.AddComponent<T>();
+                    instance = FindObjectOfType<T>();
+                    if (instance == null)
+                    {
+                        GameObject obj = new GameObject(typeof(T).Name + "_AutoCreated");
+                        instance = obj.AddComponent<T>();
+                    }
                 }
+                return instance;
             }
-            return instance;
         }
     }
 }

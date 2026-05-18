@@ -4,58 +4,61 @@ using System;
 using System.Threading;
 using UnityEngine;
 
-public class LSTimer : IDisposable
+namespace LS
 {
-    [SerializeField] private int serverFPS = 30;        // 服务端逻辑帧率
-    //[SerializeField] private int renderFPS = 60;        // 客户端渲染帧率
-    //[SerializeField] private int bufferFrames = 3;      // 输入缓冲帧数
-
-    private int currentLogicFrame = 0;
-    private CancellationTokenSource logicCts;
-
-    public event Action OnTick;     // 逻辑帧事件
-
-    public void Start()
+    public class LSTimer : IDisposable
     {
-        StartFrameSync();
-    }
+        [SerializeField] private int serverFPS = 30;        // 服务端逻辑帧率
+        //[SerializeField] private int renderFPS = 60;        // 客户端渲染帧率
+        //[SerializeField] private int bufferFrames = 3;      // 输入缓冲帧数
 
-    void StartFrameSync()
-    {
-        // 启动逻辑帧协程
-        logicCts = new CancellationTokenSource();
-        _ = RunLogicFrames(logicCts.Token);
-    }
+        private int currentLogicFrame = 0;
+        private CancellationTokenSource logicCts;
 
-    private async UniTask RunLogicFrames(CancellationToken token)
-    {
-        double frameIntervalMs = 1000.0 / serverFPS;
+        public event Action OnTick;     // 逻辑帧事件
 
-        // 使用 UniTask 定时器
-        await foreach (var _ in UniTaskAsyncEnumerable.Timer(
-            TimeSpan.Zero,
-            TimeSpan.FromMilliseconds(frameIntervalMs))
-            .WithCancellation(token))
+        public void Start()
         {
-            if (token.IsCancellationRequested) break;
+            StartFrameSync();
+        }
 
-            // 记录开始时间
-            var frameStartTime = Time.realtimeSinceStartup;
+        void StartFrameSync()
+        {
+            // 启动逻辑帧协程
+            logicCts = new CancellationTokenSource();
+            _ = RunLogicFrames(logicCts.Token);
+        }
 
-            try
+        private async UniTask RunLogicFrames(CancellationToken token)
+        {
+            double frameIntervalMs = 1000.0 / serverFPS;
+
+            // 使用 UniTask 定时器
+            await foreach (var _ in UniTaskAsyncEnumerable.Timer(
+                TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(frameIntervalMs))
+                .WithCancellation(token))
             {
-                OnTick?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"逻辑帧 {currentLogicFrame} 执行异常: {ex.Message}");
+                if (token.IsCancellationRequested) break;
+
+                // 记录开始时间
+                var frameStartTime = Time.realtimeSinceStartup;
+
+                try
+                {
+                    OnTick?.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"逻辑帧 {currentLogicFrame} 执行异常: {ex.Message}");
+                }
             }
         }
-    }
 
-    public void Dispose()
-    {
-        logicCts?.Cancel();
-        logicCts?.Dispose();
+        public void Dispose()
+        {
+            logicCts?.Cancel();
+            logicCts?.Dispose();
+        }
     }
 }

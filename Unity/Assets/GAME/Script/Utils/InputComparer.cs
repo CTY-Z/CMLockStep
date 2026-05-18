@@ -27,6 +27,9 @@ public class InputComparer : IInputComparer
         var authoritativeInput = authoritative.Inputs.FirstOrDefault(a => a.PlayerId == localPlayerID);
         var predictedInput = predicted.Inputs.FirstOrDefault(a => a.PlayerId == localPlayerID);
 
+        if (predictedInput == null || authoritativeInput == null)
+            return false;
+
         return predictedInput.InputX == authoritativeInput.InputX &&
             predictedInput.InputY == authoritativeInput.InputY &&
             predictedInput.Jump == authoritativeInput.Jump;
