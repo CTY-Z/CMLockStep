@@ -15,6 +15,10 @@ public static class Protocols
 
         [EventDefine.C_S_FrameData] = (2, 1),
         [EventDefine.S_C_FrameData] = (2, 2),
+
+        [EventDefine.S_C_RoomSnapshot] = (3, 1),
+        [EventDefine.S_C_RoomPlayerJoined] = (3, 2),
+        [EventDefine.S_C_RoomPlayerLeft] = (3, 3),
     };
 
     public readonly static Dictionary<int, string> dic_ID_eventKey = new()
@@ -26,6 +30,10 @@ public static class Protocols
 
         [2 * 256 + 1] = EventDefine.C_S_FrameData,
         [2 * 256 + 2] = EventDefine.S_C_FrameData,
+
+        [3 * 256 + 1] = EventDefine.S_C_RoomSnapshot,
+        [3 * 256 + 2] = EventDefine.S_C_RoomPlayerJoined,
+        [3 * 256 + 3] = EventDefine.S_C_RoomPlayerLeft,
     };
 
     public static (UInt16 cmd, UInt16 param) GetCMD(string key)

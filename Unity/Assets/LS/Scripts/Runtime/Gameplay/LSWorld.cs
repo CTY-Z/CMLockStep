@@ -198,7 +198,6 @@ namespace LS
 
             dic_frame_worldSnapshot[frameInput.FrameNumber] = m_lsLogic.CreateSnapshot();
 
-            Debug.Log($"Authoritative");
             //Debug.Log($"frame={frameInput.FrameNumber}, hash={m_lsLogic.GetHash()}");
         }
 
@@ -210,7 +209,6 @@ namespace LS
             m_lsLogic.Step(predictedFrameInput);
             dic_frame_worldSnapshot[predictedFrameInput.FrameNumber] = m_lsLogic.CreateSnapshot();
 
-            Debug.Log($"Predicted");
             //Debug.Log($"frame={predictedFrameInput.FrameNumber}, hash={m_lsLogic.GetHash()}");
         }
         #endregion

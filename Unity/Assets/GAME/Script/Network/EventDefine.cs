@@ -15,6 +15,9 @@ public static class EventDefine
     public static readonly string C_S_FrameData = "C_S_FrameData";
     public static readonly string S_C_FrameData = "S_C_FrameData";
 
+    public static readonly string S_C_RoomSnapshot = "S_C_RoomSnapshot";
+    public static readonly string S_C_RoomPlayerJoined = "S_C_RoomPlayerJoined";
+    public static readonly string S_C_RoomPlayerLeft = "S_C_RoomPlayerLeft";
 }
 
 

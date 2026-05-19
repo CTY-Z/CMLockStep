@@ -1,5 +1,6 @@
-﻿using Login;
+using Login;
 using LSServer.Client;
+using Room;
 using System;
 using System.Net;
 using System.Security.Cryptography;
@@ -15,6 +16,8 @@ namespace LSServer.Model
 
         public Dictionary<IPEndPoint, UDPClient> dic_client_info = new();
         private HashSet<int> usedClientIds = new HashSet<int>();
+
+        public Dictionary<int, Room.PlayerData> dic_playerID_data = new();
 
         public void RegisterClient(IPEndPoint endPoint, ConnectRequest data)
         {
@@ -35,6 +38,10 @@ namespace LSServer.Model
                     Message = "connect",
                 };
                 LoginProcessor.S_C_ConnectResponse(endPoint, temp);
+
+                PlayerData playerData = new PlayerData() { PlayerId = clientId };
+                RoomJoined(endPoint, playerData);
+
                 Console.WriteLine($"客户端注册: {endPoint} -> ID: {clientId}");
             }
         }
@@ -80,8 +87,39 @@ namespace LSServer.Model
                     int clientId = client.ClientID;
                     usedClientIds.Remove(clientId);
                     dic_client_info.Remove(endPoint);
+                    RoomLeft(clientId);
                     Console.WriteLine($"客户端 {clientId} ({endPoint}) 断开连接");
                 }
+            }
+        }
+
+        private void RoomJoined(IPEndPoint endPoint, PlayerData playerData)
+        {
+            dic_playerID_data[playerData.PlayerId] = playerData;
+
+            Room.RoomSnapshot roomData = new RoomSnapshot();
+            foreach(var data in dic_playerID_data.Values)
+                roomData.Players.Add(data);
+            GameProcessor.S_C_RoomSnapshot(endPoint, roomData);
+
+            foreach(var player in dic_client_info)
+            {
+                if (player.Value.endPoint == endPoint)
+                    continue;
+
+                Room.RoomPlayerJoined joinedData = new RoomPlayerJoined() { Player = playerData };
+                GameProcessor.S_C_RoomPlayerJoined(player.Value.endPoint, joinedData);
+            }
+        }
+
+        private void RoomLeft(int playerID)
+        {
+            dic_playerID_data.Remove(playerID);
+
+            foreach (var player in dic_client_info)
+            {
+                Room.RoomPlayerLeft leftData = new RoomPlayerLeft() { PlayerId = playerID };
+                GameProcessor.S_C_RoomPlayerLeft(player.Value.endPoint, leftData);
             }
         }
 

@@ -15,6 +15,7 @@ namespace LS
         {
             dic_ID_process.Add(1, new LoginProcessor());
             dic_ID_process.Add(2, new FrameSyncProcessor());
+            dic_ID_process.Add(3, new GameProcessor());
         }
 
         public static void OnSendMsg<T>(string key, T data) where T : global::ProtoBuf.IExtensible
@@ -23,7 +24,7 @@ namespace LS
 
             if (value.cmd == 0)
             {
-                Debug.LogError("Ğ­ÒéºÅ²»´æÔÚ");
+                Debug.LogError("åè®®å·ä¸å­˜åœ¨");
                 return;
             }
 
@@ -41,7 +42,7 @@ namespace LS
                 handler(data);
             }
             else
-                Debug.LogError($"{tuple.cmd} - {tuple.param} - ProtoHandlerÕÒ²»µ½¶ÔÓ¦ÊÂ¼ş");
+                Debug.LogError($"{tuple.cmd} - {tuple.param} - ProtoHandleræ‰¾ä¸åˆ°å¯¹åº”äº‹ä»¶");
         }
     }
 }

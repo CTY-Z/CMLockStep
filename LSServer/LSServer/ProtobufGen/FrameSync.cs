@@ -10,24 +10,6 @@ namespace FrameSync
 {
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class Vector3 : global::ProtoBuf.IExtensible
-    {
-        private global::ProtoBuf.IExtension __pbn__extensionData;
-        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
-
-        [global::ProtoBuf.ProtoMember(1, Name = @"x")]
-        public float X { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, Name = @"y")]
-        public float Y { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, Name = @"z")]
-        public float Z { get; set; }
-
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class PlayerInput : global::ProtoBuf.IExtensible
     {
         private global::ProtoBuf.IExtension __pbn__extensionData;
@@ -63,100 +45,6 @@ namespace FrameSync
 
         [global::ProtoBuf.ProtoMember(2, Name = @"inputs")]
         public global::System.Collections.Generic.List<PlayerInput> Inputs { get; } = new global::System.Collections.Generic.List<PlayerInput>();
-
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GameState : global::ProtoBuf.IExtensible
-    {
-        private global::ProtoBuf.IExtension __pbn__extensionData;
-        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
-
-        [global::ProtoBuf.ProtoMember(1, Name = @"frame_number")]
-        public int FrameNumber { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, Name = @"players")]
-        public global::System.Collections.Generic.List<PlayerState> Players { get; } = new global::System.Collections.Generic.List<PlayerState>();
-
-        [global::ProtoBuf.ProtoMember(3, Name = @"server_time")]
-        public ulong ServerTime { get; set; }
-
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerState : global::ProtoBuf.IExtensible
-    {
-        private global::ProtoBuf.IExtension __pbn__extensionData;
-        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
-
-        [global::ProtoBuf.ProtoMember(1, Name = @"player_id")]
-        public int PlayerId { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, Name = @"position")]
-        public Vector3 Position { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, Name = @"velocity")]
-        public Vector3 Velocity { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4, Name = @"health")]
-        public int Health { get; set; }
-
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class NetworkPacket : global::ProtoBuf.IExtensible
-    {
-        private global::ProtoBuf.IExtension __pbn__extensionData;
-        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
-
-        [global::ProtoBuf.ProtoMember(1, Name = @"type")]
-        public PacketType Type { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, Name = @"sequence")]
-        public int Sequence { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, Name = @"ack")]
-        public int Ack { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4, Name = @"payload")]
-        public byte[] Payload { get; set; }
-
-        [global::ProtoBuf.ProtoContract()]
-        public enum PacketType
-        {
-            [global::ProtoBuf.ProtoEnum(Name = @"INPUT")]
-            Input = 0,
-            [global::ProtoBuf.ProtoEnum(Name = @"STATE")]
-            State = 1,
-            [global::ProtoBuf.ProtoEnum(Name = @"COMMAND")]
-            Command = 2,
-            [global::ProtoBuf.ProtoEnum(Name = @"ACK")]
-            Ack = 3,
-            [global::ProtoBuf.ProtoEnum(Name = @"HEARTBEAT")]
-            Heartbeat = 4,
-        }
-
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class Connection : global::ProtoBuf.IExtensible
-    {
-        private global::ProtoBuf.IExtension __pbn__extensionData;
-        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
-
-        [global::ProtoBuf.ProtoMember(1, Name = @"client_id")]
-        public int ClientId { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, Name = @"player_name")]
-        [global::System.ComponentModel.DefaultValue("")]
-        public string PlayerName { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3, Name = @"is_reconnect")]
-        public bool IsReconnect { get; set; }
 
     }
 

@@ -1,0 +1,20 @@
+syntax = "proto3";
+package Room;
+
+// 玩家信息
+message PlayerData {
+    int32 player_id = 1;
+}
+
+// 房间玩家列表
+message RoomSnapshot {
+    repeated PlayerData players = 1;
+}
+
+message RoomPlayerJoined {
+    PlayerData player = 1;
+}
+
+message RoomPlayerLeft {
+    int32 player_id = 1;
+}
