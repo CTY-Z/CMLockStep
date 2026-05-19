@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameModel
 {
-    public Dictionary<int, Room.PlayerData> dic_playerID_data;
+    private Dictionary<int, Room.PlayerData> dic_playerID_data;
 
     public void Init()
     {
@@ -15,13 +16,14 @@ public class GameModel
         GameEntry.Instance.eventPool.Register<Room.RoomSnapshot>(EventDefine.S_C_RoomSnapshot, OnRoom);
     }
 
-    public void OnPlayerJoined(Room.RoomPlayerJoined joinedData)
+    #region Event
+    private void OnPlayerJoined(Room.RoomPlayerJoined joinedData)
     {
         dic_playerID_data[joinedData.Player.PlayerId] = joinedData.Player;
         Debug.Log($"PlayerJoined - {joinedData.Player.PlayerId}");
     }
 
-    public void OnPlayerLeft(Room.RoomPlayerLeft leftData)
+    private void OnPlayerLeft(Room.RoomPlayerLeft leftData)
     {
         Debug.Log($"PlayerLeft - {leftData.PlayerId}");
 
@@ -29,7 +31,7 @@ public class GameModel
             dic_playerID_data.Remove(leftData.PlayerId);
     }
 
-    public void OnRoom(Room.RoomSnapshot roomData)
+    private void OnRoom(Room.RoomSnapshot roomData)
     {
         dic_playerID_data.Clear();
 
@@ -38,5 +40,11 @@ public class GameModel
             dic_playerID_data[playerData.PlayerId] = playerData;
             Debug.Log($" - - - - PlayerData - {playerData.PlayerId}");
         }
+    }
+    #endregion
+
+    public IEnumerable<int> GetAllPlayer()
+    {
+        return dic_playerID_data.Keys.OrderBy(id => id);
     }
 }

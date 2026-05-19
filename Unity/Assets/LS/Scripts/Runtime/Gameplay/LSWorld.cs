@@ -1,5 +1,4 @@
 using FrameSync;
-using LS;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -300,37 +299,46 @@ namespace LS
             FrameInput pFrameInput = new FrameInput { FrameNumber = frameNumber };
 
             int localPlayerId = localPlayerID;
-            //todo 应该改成全房间成员遍历, 如果没找到预测帧的话先直接采用默认帧
-            if (dic_frame_localPredictedInputHistory.TryGetValue(frameNumber, out var pInput))
-                pFrameInput.Inputs.Add(new PlayerInput
+            var playerIds = GameEntry.Instance.model.game.GetAllPlayer().ToList();
+            if (localPlayerID >= 0 && !playerIds.Contains(localPlayerID))
+                playerIds.Add(localPlayerID);
+            playerIds.Sort();
+
+            foreach (var playerID in playerIds)
+            {
+                PlayerInput playerInputTemp = new PlayerInput
                 {
-                    PlayerId = pInput.PlayerId,
-                    TargetFrame = frameNumber,
-                    InputX = pInput.InputX,
-                    InputY = pInput.InputY,
-                    Jump = pInput.Jump
-                });
-            else
-                pFrameInput.Inputs.Add(new PlayerInput
-                {
-                    PlayerId = localPlayerID,
+                    PlayerId = playerID,
                     TargetFrame = frameNumber,
                     InputX = 0,
                     InputY = 0,
                     Jump = false
-                });
+                };
 
-            foreach (var lastKnownInput in dic_player_lastKnownInput.Values)
-            {
-                if (lastKnownInput.PlayerId != localPlayerId)
-                    pFrameInput.Inputs.Add(new PlayerInput
+                if (playerID == localPlayerId)
+                {
+                    if (dic_frame_localPredictedInputHistory.TryGetValue(frameNumber, out var pInput))
                     {
-                        PlayerId = lastKnownInput.PlayerId,
-                        TargetFrame = frameNumber,
-                        InputX = lastKnownInput.InputX,
-                        InputY = lastKnownInput.InputY,
-                        Jump = lastKnownInput.Jump
-                    });
+                        playerInputTemp.PlayerId = playerID;
+                        playerInputTemp.TargetFrame = frameNumber;
+                        playerInputTemp.InputX = pInput.InputX;
+                        playerInputTemp.InputY = pInput.InputY;
+                        playerInputTemp.Jump = pInput.Jump;
+                    }
+                }
+                else
+                {
+                    if (dic_player_lastKnownInput.TryGetValue(playerID, out var lastKnownInput))
+                    {
+                        playerInputTemp.PlayerId = playerID;
+                        playerInputTemp.TargetFrame = frameNumber;
+                        playerInputTemp.InputX = lastKnownInput.InputX;
+                        playerInputTemp.InputY = lastKnownInput.InputY;
+                        playerInputTemp.Jump = lastKnownInput.Jump;
+                    }
+                }
+
+                pFrameInput.Inputs.Add(playerInputTemp);
             }
 
             return pFrameInput;
