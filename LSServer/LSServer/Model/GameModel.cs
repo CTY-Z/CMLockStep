@@ -24,9 +24,7 @@ namespace LSServer.Model
             lock (m_clientLock)
             {
                 if (dic_client_info.TryGetValue(endPoint, out UDPClient? oldClient) && oldClient != null)
-                {
                     usedClientIds.Remove(oldClient.ClientID);
-                }
 
                 int clientId = AllocateClientId();
                 dic_client_info[endPoint] = new UDPClient(clientId, endPoint, data);

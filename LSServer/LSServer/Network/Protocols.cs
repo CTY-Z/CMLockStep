@@ -16,6 +16,8 @@ namespace LSServer
             [EventDefine.C_S_FrameData] = (2, 1),
             [EventDefine.S_C_FrameData] = (2, 2),
 
+            [EventDefine.C_S_StateHash] = (2, 4),
+
             [EventDefine.S_C_RoomSnapshot] = (3, 1),
             [EventDefine.S_C_RoomPlayerJoined] = (3, 2),
             [EventDefine.S_C_RoomPlayerLeft] = (3, 3),
@@ -30,6 +32,8 @@ namespace LSServer
 
             [2 * 256 + 1] = EventDefine.C_S_FrameData,
             [2 * 256 + 2] = EventDefine.S_C_FrameData,
+
+            [2 * 256 + 4] = EventDefine.C_S_StateHash,
 
             [3 * 256 + 1] = EventDefine.S_C_RoomSnapshot,
             [3 * 256 + 2] = EventDefine.S_C_RoomPlayerJoined,

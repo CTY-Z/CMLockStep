@@ -14,6 +14,7 @@ namespace LSServer
         public FrameSyncProcessor() : base()
         {
             Add(1, C_S_FrameData);
+            Add(4, C_S_StateHash);
         }
 
         //2-1 client -> server
@@ -33,6 +34,16 @@ namespace LSServer
         public static void S_C_FrameData(IPEndPoint endPoint, FrameSync.FrameInput data)
         {
             ProtoHandler.OnSendMsg(EventDefine.S_C_FrameData, endPoint, data);
+        }
+
+        //2-4 client -> server
+        public static void C_S_StateHash(ProcessData recvData)
+        {
+            if (!ModelManager.Instance.game.dic_client_info.TryGetValue(recvData.endPoint, out var clientData)) return;
+
+            var result = ProtobufHelper.DecodeData<FrameSync.StateHash>(recvData.dataByte);
+            result.PlayerId = clientData.ClientID;
+            EventPool.Fire(EventDefine.C_S_StateHash, result);
         }
     }
 }

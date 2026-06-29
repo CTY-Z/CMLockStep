@@ -36,4 +36,17 @@ public class FrameSyncProcessor : BaseProcessor
         var result = ProtobufHelper.DecodeData<FrameSync.FrameInput>(dataByte);
         GameEntry.Instance.eventPool.Fire(EventDefine.S_C_FrameData, result);
     }
+
+    // 2-3 client -> server
+    public static void C_S_StateHash(int playerID, int frameNumber, int hash)
+    {
+        var data = new FrameSync.StateHash
+        {
+            PlayerId = playerID,
+            FrameNumber = frameNumber,
+            Hash = hash
+        };
+
+        ProtoHandler.OnSendMsg(EventDefine.C_S_StateHash, data);
+    }
 }

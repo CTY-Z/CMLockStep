@@ -19,6 +19,8 @@ namespace LSServer
         public static readonly string S_C_RoomSnapshot = "S_C_RoomSnapshot";
         public static readonly string S_C_RoomPlayerJoined = "S_C_RoomPlayerJoined";
         public static readonly string S_C_RoomPlayerLeft = "S_C_RoomPlayerLeft";
+
+        public static readonly string C_S_StateHash = "C_S_StateHash";
     }
 }
 

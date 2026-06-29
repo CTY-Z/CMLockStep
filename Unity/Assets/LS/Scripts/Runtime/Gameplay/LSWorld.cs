@@ -14,6 +14,8 @@ namespace LS
         /// </summary>
         private const int maxPredictAheadFrames = 6;
 
+        private const int m_hashReportInterval = 30;
+
         private LSTimer m_timer;
 
         private int m_latestServerFrame;
@@ -51,10 +53,16 @@ namespace LS
         /// 执行完该帧后的世界快照
         /// </summary>
         private readonly Dictionary<int, WorldSnapshot> dic_frame_worldSnapshot = new();
+
         /// <summary>
         /// 所有玩家最近已知的一次输入
         /// </summary>
         private readonly Dictionary<int, PlayerInput> dic_player_lastKnownInput = new();
+
+        /// <summary>
+        /// 快照哈希
+        /// </summary>
+        private readonly Dictionary<int, int> dic_frame_stateHash = new();
 
         LSLogicBase m_lsLogic;
         LSViewBase m_lsView;
@@ -152,6 +160,8 @@ namespace LS
                     foreach (var item in authoritativeFrameInput.Inputs)
                         dic_player_lastKnownInput[item.PlayerId] = item;
 
+                    OnAuthoritativeFrameConfirmed(m_authoritativeExecutedFrame);
+
                     continue;
                 }
 
@@ -163,6 +173,9 @@ namespace LS
                     m_authoritativeExecutedFrame = nextFrame;
                     foreach (var item in authoritativeFrameInput.Inputs)
                         dic_player_lastKnownInput[item.PlayerId] = item;
+
+                    OnAuthoritativeFrameConfirmed(m_authoritativeExecutedFrame);
+
                     continue;
                 }
 
@@ -197,6 +210,8 @@ namespace LS
 
             dic_frame_worldSnapshot[frameInput.FrameNumber] = m_lsLogic.CreateSnapshot();
 
+            RecordFrameState(frameInput.FrameNumber);
+
             //Debug.Log($"frame={frameInput.FrameNumber}, hash={m_lsLogic.GetHash()}");
         }
 
@@ -207,6 +222,8 @@ namespace LS
 
             m_lsLogic.Step(predictedFrameInput);
             dic_frame_worldSnapshot[predictedFrameInput.FrameNumber] = m_lsLogic.CreateSnapshot();
+
+            RecordFrameState(predictedFrameInput.FrameNumber);
 
             //Debug.Log($"frame={predictedFrameInput.FrameNumber}, hash={m_lsLogic.GetHash()}");
         }
@@ -402,13 +419,38 @@ namespace LS
 
                 dic_frame_worldSnapshot[i] = m_lsLogic.CreateSnapshot();
                 m_localExecutedFrame = i;
+
+                RecordFrameState(i);
             }
 
             //权威帧要回到回滚前的一帧，然后根据已执行的权威数据递增计算
             while (dic_frame_executedAuthoritativeHistory.ContainsKey(m_authoritativeExecutedFrame + 1))
+            {
                 m_authoritativeExecutedFrame++;
+                OnAuthoritativeFrameConfirmed(m_authoritativeExecutedFrame);
+            }
 
             m_lsView.Sync(m_lsLogic);
+        }
+
+        #endregion
+
+        #region Hash
+
+        private void RecordFrameState(int frameNumber)
+        {
+            dic_frame_stateHash[frameNumber] = m_lsLogic.GetHash();
+        }
+
+        private void OnAuthoritativeFrameConfirmed(int frameNumber)
+        {
+            TryReportStateHash(frameNumber);
+        }
+
+        private void TryReportStateHash(int frameNumber)
+        {
+            if (dic_frame_stateHash.TryGetValue(frameNumber, out int hash))
+                FrameSyncProcessor.C_S_StateHash(localPlayerID, frameNumber, hash);
         }
 
         #endregion
