@@ -106,8 +106,8 @@ namespace LS
 
             SendInputForFutureFrame();
 
-            ExecuteReadyPredictedFrames();
             ExecuteReadyAuthoritativeFrames();
+            ExecuteReadyPredictedFrames();
 
             m_lsView.Sync(m_lsLogic);
             CleanupDataHistory();
@@ -305,6 +305,8 @@ namespace LS
                 dic_frame_worldSnapshot.Remove(frame);
                 dic_frame_executedPredictedHistory.Remove(frame);
                 dic_frame_localPredictedInputHistory.Remove(frame);
+                dic_frame_stateHash.Remove(frame);
+                m_set_reportFrame.Remove(frame);
             }
         }
         #endregion
@@ -437,6 +439,7 @@ namespace LS
 
         #region Hash
 
+        private readonly HashSet<int> m_set_reportFrame = new HashSet<int>();
         private void RecordFrameState(int frameNumber)
         {
             dic_frame_stateHash[frameNumber] = m_lsLogic.GetHash();
@@ -450,9 +453,16 @@ namespace LS
         private void TryReportStateHash(int frameNumber)
         {
             if (dic_frame_stateHash.TryGetValue(frameNumber, out int hash))
-                FrameSyncProcessor.C_S_StateHash(localPlayerID, frameNumber, hash);
-        }
+            {
+                if (frameNumber % m_hashReportInterval != 0)
+                    return;
 
+                if (!m_set_reportFrame.Add(frameNumber))
+                    return;
+
+                FrameSyncProcessor.C_S_StateHash(localPlayerID, frameNumber, hash);
+            }
+        }
         #endregion
     }
 }

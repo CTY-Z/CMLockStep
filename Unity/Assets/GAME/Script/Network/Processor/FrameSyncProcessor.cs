@@ -37,7 +37,7 @@ public class FrameSyncProcessor : BaseProcessor
         GameEntry.Instance.eventPool.Fire(EventDefine.S_C_FrameData, result);
     }
 
-    // 2-3 client -> server
+    // 2-4 client -> server
     public static void C_S_StateHash(int playerID, int frameNumber, int hash)
     {
         var data = new FrameSync.StateHash
